@@ -50,8 +50,11 @@ class ResPartner(orm.Model):
                 cr, uid, ids, ['dropoff_site_id'], context=context)
         super(ResPartner, self).write(cr, uid, ids, vals, context=context)
 
-    def _dropoffsite_in_partner(self, cr, uid, ids, context=None):
-        return ids
+    def _get_partner_ids_from_dropoffsite(self, cr, uid, ids, context=None):
+        partner_ids = []
+        for dropoff in self.browse(cr, uid, ids, context=context):
+            partner_ids.append(dropoff.partner_id.id)
+        return partner_ids
 
     _columns = {
         'dropoff_site_id': fields.function(
@@ -60,7 +63,7 @@ class ResPartner(orm.Model):
             type='many2one',
             relation='partner.dropoff.site',
             store={
-                'partner.dropoff.site': (_dropoffsite_in_partner,
+                'partner.dropoff.site': (_get_partner_ids_from_dropoffsite,
                                          ['partner_id'], 10),
             },
             help="... are specific areas where carriers ship merchandises.\n"
