@@ -20,18 +20,18 @@
                 <separator string="Specific infos"/>
                 <group name="main" col="4">
                     <group name="left">
-                        <field name="code"/>
-                        <field name="weight"/>
+                        <field name="code" class="oe_inline"/>
+                        <field name="weight" class="oe_inline"/>
                     </group>
                     <group name="right">
-                        <field name="dropoff_type"/>
-                        <field name="subtype"/>
+                        <field name="dropoff_type" class="oe_inline"/>
+                        <field name="subtype" class="oe_inline"/>
                     </group>
                 </group>
                 <br/>
                 <div>
     Drop-off Sites are specific areas where carriers ship merchandises.
-    <newline/>
+    <br/>
     Recipients comes pick up their packages in these sites
                 </div>
             </sheet>

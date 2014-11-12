@@ -93,7 +93,7 @@ class AbstractDropoffSite(orm.AbstractModel):
 
     _columns = {
         'code': fields.char(
-            'Dropoff site code',
+            'Dropoff Site Code',
             size=30,
             help='Code of the site in carrier information system'),
         'weight': fields.float(
@@ -101,7 +101,7 @@ class AbstractDropoffSite(orm.AbstractModel):
             help='Max weight (kg) for the site per package unit '
             '(from the viewpoint of handling)'),
         'subtype': fields.char(
-            'Sub type',
+            'Sub Type',
             size=30,
             select=True,
             help="Name/code to define the area : "
@@ -130,7 +130,7 @@ class PartnerDropoffSite(orm.Model):
 
     _columns = {
         'dropoff_type': fields.char(
-            'Dropoff type',
+            'Dropoff Type',
             required=True,
             help='example : UPS, Postal area, Fedex, etc.'),
         'partner_id': fields.many2one(
