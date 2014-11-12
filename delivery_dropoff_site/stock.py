@@ -54,3 +54,18 @@ class StockPickingOut(orm.Model):
             'Has Final Partner',
             help='Use to facilitate display'),
     }
+
+    def goto_dropoff_button(self, cr, uid, ids, context=None):
+        pick = self.browse(cr, uid, ids, context=context)[0]
+        ids = self.pool['partner.dropoff.site'].search(
+            cr, uid, [('partner_id', '=', pick.partner_id.id)], context=context)
+        return {
+            'name': 'Dropoff Site',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_id': ids[0],
+            'res_model': 'partner.dropoff.site',
+            'type': 'ir.actions.act_window',
+            'nodestroy': True,
+            'target': 'current',
+        }
