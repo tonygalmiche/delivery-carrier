@@ -21,7 +21,7 @@ With this Carrier, 'customer' field should be considered <br/>as
              and 'final recipient' field as Customer</span>
             <field name="final_partner_id"
                    attrs="{'invisible': [('has_final_recipient', '=', False)], 'required': [('has_final_recipient', '=', True)]}"/>
-            <field name="has_final_recipient" invisible="0"/>
+            <field name="has_final_recipient" invisible="1"/>
         </field>
     </field>
 </record>
