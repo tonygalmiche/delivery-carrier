@@ -100,7 +100,8 @@ class StockPicking(orm.Model):
         address.update({
             "zip": picking.partner_id.zip,
             "city": picking.partner_id.city,
-            "consignee_phone": picking.partner_id.phone,
+            "consignee_phone": (picking.partner_id.phone or
+                                picking.partner_id.mobile),
             "consignee_mobile": (picking.partner_id.mobile or
                                  picking.partner_id.phone),
             "consignee_email": picking.partner_id.email,
