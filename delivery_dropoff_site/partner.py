@@ -48,7 +48,7 @@ class ResPartner(orm.Model):
         if 'partner_id' in vals:
             self._store_set_values(
                 cr, uid, ids, ['dropoff_site_id'], context=context)
-        super(ResPartner, self).write(cr, uid, ids, vals, context=context)
+        return super(ResPartner, self).write(cr, uid, ids, vals, context=context)
 
     def _get_partner_ids_from_dropoffsite(self, cr, uid, ids, context=None):
         partner_ids = []
