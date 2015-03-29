@@ -32,6 +32,7 @@
         'base_delivery_carrier_label',
         'file_document',
         'file_repository',
+        'sale',
     ],
     'description': """
 Delivery Drop-off Site
@@ -59,6 +60,7 @@ Contributors
         'data/delivery_data.xml',
         'stock_view.xml',
         'partner_view.xml',
+        'sale_view.xml',
     ],
     'license': 'AGPL-3',
     'external_dependencies': {

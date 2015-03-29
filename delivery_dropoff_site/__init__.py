@@ -11,3 +11,4 @@
 from . import stock
 from . import file_exchange
 from . import partner
+from . import sale
