@@ -110,7 +110,8 @@ class stock_picking(orm.Model):
 
         """
         shipping_label_obj = self.pool.get('shipping.label')
-
+        if not context:
+            context = {}
         pickings = self.browse(cr, uid, ids, context=context)
 
         for pick in pickings:
