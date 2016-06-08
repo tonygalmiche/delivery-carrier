@@ -146,6 +146,18 @@ class StockQuantPackage(models.Model):
 
         return total_weight
 
+    @api.multi
+    def get_operations(self):
+        """Get operations of the package.
+
+        Usefull for having products and quantities
+        """
+        self.ensure_one()
+        return self.env['stock.pack.operation'].search([
+            ('result_package_id', '=', self.id),
+            ('product_id', '!=', False),
+        ])
+
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
