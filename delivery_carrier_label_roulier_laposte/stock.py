@@ -207,3 +207,50 @@ class StockPicking(models.Model):
         return [pack.parcel_tracking
                 for pack in self._get_packages_from_picking()
                 if pack.parcel_tracking]
+
+    # helpers
+    @api.multi
+    def _laposte_convert_address(self, partner):
+        """Convert a partner to an address for roulier.
+
+        params:
+            partner: a res.partner
+        return:
+            dict
+        """
+        self.ensure_one()
+        address = {}
+        name = 'name'
+        if 'lastname' in partner:
+            name = 'lastname'
+
+        extract_fields = [
+            name, 'firstname', 'zip', 'city', 'phone', 'mobile',
+            'email', 'phone', 'parent_id']
+
+        for elm in extract_fields:
+            if elm in partner:
+                # because a value can't be None in odoo's ORM
+                # you don't want to mix (bool) False and None
+                if partner._fields[elm].type != fields.Boolean.type:
+                    if partner[elm]:
+                        address[elm] = partner[elm]
+                    # else:
+                    # it's a None: nothing to do
+                else:  # it's a boolean: keep the value
+                    address[elm] = partner[elm]
+            else:
+                address[elm] = '.'
+
+        # get_split_adress from partner_helper module
+        res = partner._get_split_address(partner, 3, 38)
+        address['street2'], address['street1'], address['street3'] = res
+
+        # parent_id is None if it's a company
+        if 'parent_id' in address:
+            address['company'] = address['parent_id'].name
+            del address['parent_id']
+
+        # Codet ISO 3166-1-alpha-2 (2 letters code)
+        address['country'] = partner.country_id.code
+        return address
