@@ -131,7 +131,10 @@ class StockPicking(models.Model):
     def _get_parcel(self, package_id):
         pass
 
-# end of API
+    @implemented_by_carrier
+    def _convert_address(self, partner):
+        pass
+    # end of API
 
     # Core functions
     @api.multi
@@ -165,7 +168,6 @@ class StockPicking(models.Model):
     def _roulier_generate_shipping_labels(self, package_ids=None):
         """Create as many labels as package_ids or in self."""
         self.ensure_one()
-
         packages = []
         if package_ids:
             packages = package_ids
@@ -195,8 +197,8 @@ class StockPicking(models.Model):
 
         payload['auth'] = self._get_auth()
 
-        payload['from_address'] = self._roulier_convert_address(sender)
-        payload['to_address'] = self._roulier_convert_address(receiver)
+        payload['from_address'] = self._convert_address(sender)
+        payload['to_address'] = self._convert_address(receiver)
 
         if self._should_include_customs(package_id):
             payload['customs'] = self._get_customs(package_id)
