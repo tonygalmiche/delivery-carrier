@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <!-- PRODUCT  -->
+        <record id="product_product_trs" model="product.product">
+            <field name="default_code">SHIP_TRS</field>
+            <field name="standard_price">0.0</field>
+            <field name="cost_method">standard</field>
+            <field name="type">service</field>
+            <field name="procure_method">make_to_stock</field>
+            <field name="supply_method">buy</field>
+            <field name="name">Test only - TRS</field>
+            <field name="categ_id">1</field>
+        </record>
+
+        <!-- PARTNER -->
+        <record id="partner_trs" model="res.partner">
+            <field name="name">TRS</field>
+            <field name="customer" eval="False"/>
+            <field name="supplier" eval="True"/>
+            <field name="street">rue du colis</field>
+            <field name="zip">99999</field>
+            <field name="city">XXXXXX PFC</field>
+        </record>
+
+
+        <!-- DELIVERY CARRIER -->
+        <record id="delivery_carrier_trs" model="delivery.carrier">
+            <field name="name">TRS</field>
+            <field name="type">trs</field>
+            <field name="code">TRS</field>
+            <field name="use_detailed_pricelist" eval="1"/>
+            <field name="deposit_slip" eval="False"/>
+            <field name="partner_id" ref="delivery_carrier_label_roulier_trs.partner_trs"/>
+            <field name="product_id" ref="delivery_carrier_label_roulier_trs.product_product_trs"/>
+        </record>
+    </data>
+</openerp>
