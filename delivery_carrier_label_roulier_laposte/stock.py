@@ -21,36 +21,6 @@ LAPOSTE_CARRIER_TYPE = 'laposte'
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
-    # devrait etre dans customs quelque chose
-    laposte_to_country = fields.Char(
-        "Country where the picking is delivered",
-        help="Usefull for statistics about exports",
-    )
-
-    laposte_from_country = fields.Char(
-        "Country of origin of the picking",
-        help="Usefull for statistics about exports",
-    )
-
-    # a mettre dans packages ou dans picking ?
-    laposte_amount = fields.Float(
-        "Sum of products in the packages",
-        help="Usefull for custom declarations. Currency of from_country",
-        digits=dp.get_precision('Product Price')
-    )
-
-    # a mettre dans packages ou dans picking ?
-    laposte_cod = fields.Float(
-        "Cash on delivery",
-        help="Amount in the currency of to_country",
-        digits=dp.get_precision('Product Price'),
-    )
-
-    laposte_insurance = fields.Float(
-        "Insurance amount",
-        help="Amount in the currency of from_country",
-    )
-
     laposte_custom_category = fields.Selection(
         selection=[
             ("1", "Gift"),
