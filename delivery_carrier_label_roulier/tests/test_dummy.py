@@ -114,8 +114,8 @@ class TestDummy(TransactionCase):
         # ensure we have also generic functions too
         # both should call the same parent function
         self.assertEqual(
-            dummy_picking._get_account(),
-            other_picking._get_account())
+            dummy_picking._get_auth(),
+            other_picking._get_auth())
 
     def test_generate_shipping_labels_no_package(self):
         """It should faily because it there is no package."""
