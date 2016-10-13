@@ -7,13 +7,20 @@
 #  @author Raphael Reverdy <raphael.reverdy@akretion.com>
 #
 ##############################################################################
+
+from datetime import datetime, timedelta
+from functools import wraps
+import logging
+
 from openerp import models, fields, api
 from openerp.tools.translate import _
 from openerp.exceptions import Warning as UserError
 
-from roulier import roulier
-from datetime import datetime, timedelta
-from functools import wraps
+_logger = logging.getLogger(__name__)
+try:
+    from roulier import roulier
+except ImportError:
+    _logger.debug('Cannot `import roulier`.')
 
 # if you want to integrate a new carrier with Roulier Library
 # start from roulier_template.py and read the doc of
