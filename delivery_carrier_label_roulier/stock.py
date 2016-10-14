@@ -233,7 +233,7 @@ class StockPicking(models.Model):
         address = {}
         extract_fields = [
             'name', 'zip', 'city', 'phone', 'mobile',
-            'email', 'phone', 'street1', 'street2']
+            'email', 'street1', 'street2']
         for elm in extract_fields:
             if elm in partner:
                 # because a value can't be None in odoo's ORM
@@ -249,7 +249,7 @@ class StockPicking(models.Model):
             address['company'] = partner.parent_id.name
         # Codet ISO 3166-1-alpha-2 (2 letters code)
         address['country'] = partner.country_id.code
-        return address
+        return self._roulier_clean_phones(address)
 
     def _roulier_clean_phones(self, address):
         # TODO make more cleaner with phone library
@@ -257,6 +257,7 @@ class StockPicking(models.Model):
         for field in ['phone', 'mobile']:
             if address.get(field):
                 address[field] = address[field].replace(' ', '')
+        return address
 
     def _roulier_is_our(self):
         """Called only by non-roulier deliver methods."""

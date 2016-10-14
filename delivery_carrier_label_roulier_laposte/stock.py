@@ -185,7 +185,6 @@ class StockPicking(models.Model):
             dict
         """
         address = self._roulier_convert_address(partner)
-        self._roulier_clean_phones(address)
         # get_split_adress from partner_helper module
         streets = partner._get_split_address(partner, 3, 38)
         address['street'], address['street2'], address['street3'] = streets
