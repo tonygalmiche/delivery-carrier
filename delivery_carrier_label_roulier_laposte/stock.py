@@ -47,11 +47,13 @@ class StockPicking(models.Model):
 
     def _laposte_after_call(self, package_id, response):
         # CN23 is included in the pdf url
-        return {
+        custom_response = {
             'name': response['parcelNumber'],
-            'url': response['url'],
-            'type': 'url',
         }
+        if response.get('url'):
+            custom_response['url'] = response['url']
+            custom_response['type'] = 'url'
+        return custom_response
 
     def _laposte_get_shipping_date(self, package_id):
         """Estimate shipping date."""
@@ -194,3 +196,18 @@ class StockPicking(models.Model):
                 and partner.firstname:
             address['firstName'] = partner.firstname
         return address
+
+    @api.model
+    def _laposte_error_handling(self, error_dict):
+        map_errors = {
+            u"Le num\xe9ro / libell\xe9 de voie du destinataire n'a pas "
+            u"\xe9t\xe9 transmis":
+            u"La 2ème rue du client partenaire est vide ou invalide",
+            u"Le num\xe9ro de portable du destinataire est incorrect":
+            u"Le téléphone du client ne doit comporter que des chiffres "
+            u"ou le symbole +",
+        }
+        message = error_dict.get('message')
+        if message and message.get('message') in map_errors.keys():
+            error_dict['message']['Implication probable dans odoo'] = (
+                map_errors[message['message']])

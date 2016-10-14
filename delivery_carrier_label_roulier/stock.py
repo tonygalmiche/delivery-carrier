@@ -135,9 +135,14 @@ class StockPicking(models.Model):
     @implemented_by_carrier
     def _convert_address(self, partner):
         pass
+
+    @implemented_by_carrier
+    def _error_handling(self, error_dict):
+        pass
     # end of API
 
     # Core functions
+
     @api.multi
     def _roulier_generate_labels(self, package_ids=None):
         # call generate_shipping_labels for each package
@@ -215,6 +220,7 @@ class StockPicking(models.Model):
 
         # minimum error handling
         if ret.get('status', '') == 'error':
+            self._error_handling(ret)
             raise UserError(_(ret.get('message', 'WebService error')))
 
         # give result to someonelese
@@ -332,3 +338,7 @@ class StockPicking(models.Model):
         sender = self._get_sender()
         receiver = self._get_receiver()
         return sender.country_id.code == receiver.country_id.code
+
+    @api.model
+    def _roulier_error_handling(self, error_dict):
+        pass
