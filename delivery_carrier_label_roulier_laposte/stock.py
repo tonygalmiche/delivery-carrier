@@ -1,13 +1,8 @@
-# -*- coding: utf-8 -*-
-##############################################################################
-#
-#  licence AGPL version 3 or later
-#  see licence in __openerp__.py or http://www.gnu.org/licenses/agpl-3.0.txt
-#  Copyright (C) 2016 Akretion (https://www.akretion.com).
+# coding: utf-8
 #  @author Raphael Reverdy <raphael.reverdy@akretion.com>
 #          David BEAL <david.beal@akretion.com>
 #          Sébastien BEAU
-##############################################################################
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 from openerp.tools.config import config
 from openerp import models, fields, api
@@ -96,7 +91,7 @@ class StockPicking(models.Model):
         return option
 
     @api.multi
-    def _laposte_get_account(self):
+    def _laposte_get_auth(self):
         """Fetch a laposte login/password.
 
         Currently it's global for the company.
@@ -131,7 +126,8 @@ class StockPicking(models.Model):
             hs = product.product_tmpl_id.get_hs_code_recursively()
 
             article['quantity'] = '%.f' % operation.product_qty
-            article['weight'] = (operation.get_weight() / operation.product_qty)
+            article['weight'] = (
+                operation.get_weight() / operation.product_qty)
             article['originCountry'] = product.origin_country_id.code
             article['description'] = hs.description
             article['hs'] = hs.hs_code
@@ -179,7 +175,7 @@ class StockPicking(models.Model):
                 if pack.parcel_tracking]
 
     # helpers
-    @api.multi
+    @api.model
     def _laposte_convert_address(self, partner):
         """Convert a partner to an address for roulier.
 
@@ -188,39 +184,14 @@ class StockPicking(models.Model):
         return:
             dict
         """
-        self.ensure_one()
-        address = {}
-        name = 'name'
-        if 'lastname' in partner:
-            name = 'lastname'
-
-        extract_fields = [
-            name, 'firstname', 'zip', 'city', 'phone', 'mobile',
-            'email', 'phone', 'parent_id']
-
-        for elm in extract_fields:
-            if elm in partner:
-                # because a value can't be None in odoo's ORM
-                # you don't want to mix (bool) False and None
-                if partner._fields[elm].type != fields.Boolean.type:
-                    if partner[elm]:
-                        address[elm] = partner[elm]
-                    # else:
-                    # it's a None: nothing to do
-                else:  # it's a boolean: keep the value
-                    address[elm] = partner[elm]
-            else:
-                address[elm] = '.'
-
+        address = self._roulier_convert_address(partner)
+        self._roulier_clean_phones(address)
         # get_split_adress from partner_helper module
-        res = partner._get_split_address(partner, 3, 38)
-        address['street2'], address['street1'], address['street3'] = res
-
-        # parent_id is None if it's a company
-        if 'parent_id' in address:
-            address['company'] = address['parent_id'].name
-            del address['parent_id']
-
-        # Codet ISO 3166-1-alpha-2 (2 letters code)
-        address['country'] = partner.country_id.code
+        streets = partner._get_split_address(partner, 3, 38)
+        address['street'], address['street2'], address['street3'] = streets
+        # TODO manage in a better way if partner_firstname is installed
+        address['firstName'] = '.'
+        if 'partner_firstname' in self.env.registry._init_modules \
+                and partner.firstname:
+            address['firstName'] = partner.firstname
         return address

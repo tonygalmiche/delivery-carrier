@@ -1,12 +1,6 @@
-# -*- coding: utf-8 -*-
-##############################################################################
-#
-#  licence AGPL version 3 or later
-#  see licence in __openerp__.py or http://www.gnu.org/licenses/agpl-3.0.txt
-#  Copyright (C) 2016 Akretion (https://www.akretion.com).
-#  @author Raphael Reverdy <raphael.reverdy@akretion.com>
-#
-##############################################################################
+# coding: utf-8
+#  @author Raphael Reverdy @ Akretion <raphael.reverdy@akretion.com>
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 from datetime import datetime, timedelta
 from functools import wraps
@@ -216,7 +210,6 @@ class StockPicking(models.Model):
         # sorte d'interceptor ici pour que chacun
         # puisse ajouter ses merdes à payload
         payload = self._before_call(package_id, payload)
-
         # vrai appel a l'api
         ret = roulier_instance.get_label(payload)
 
@@ -228,7 +221,7 @@ class StockPicking(models.Model):
         return self._after_call(package_id, ret)
 
     # helpers
-    @api.multi
+    @api.model
     def _roulier_convert_address(self, partner):
         """Convert a partner to an address for roulier.
 
@@ -237,11 +230,10 @@ class StockPicking(models.Model):
         return:
             dict
         """
-        self.ensure_one()
         address = {}
         extract_fields = [
             'name', 'zip', 'city', 'phone', 'mobile',
-            'email', 'phone', 'parent_id']
+            'email', 'phone', 'street1', 'street2']
         for elm in extract_fields:
             if elm in partner:
                 # because a value can't be None in odoo's ORM
@@ -253,19 +245,18 @@ class StockPicking(models.Model):
                     # it's a None: nothing to do
                 else:  # it's a boolean: keep the value
                     address[elm] = partner[elm]
-
-        # get_split_adress from partner_helper module
-        res = partner._get_split_address(partner, 3, 38)
-        address['street2'], address['street1'], address['street3'] = res
-
-        # parent_id is None if it's a company
-        if 'parent_id' in address:
-            address['company'] = address['parent_id'].name
-            del address['parent_id']
-
+        if partner.parent_id.is_company:
+            address['company'] = partner.parent_id.name
         # Codet ISO 3166-1-alpha-2 (2 letters code)
         address['country'] = partner.country_id.code
         return address
+
+    def _roulier_clean_phones(self, address):
+        # TODO make more cleaner with phone library
+        # some prehistoric operators don't do that themselves
+        for field in ['phone', 'mobile']:
+            if address.get(field):
+                address[field] = address[field].replace(' ', '')
 
     def _roulier_is_our(self):
         """Called only by non-roulier deliver methods."""
@@ -293,7 +284,7 @@ class StockPicking(models.Model):
         shipping_date = self._get_shipping_date(package_id)
 
         service = {
-            'productCode': self.carrier_code,
+            'product': self.carrier_code,
             'shippingDate': shipping_date,
         }
         return service
