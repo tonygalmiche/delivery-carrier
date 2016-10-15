@@ -16,6 +16,7 @@
     'category': 'Warehouse',
     'depends': [
         'partner_helper',
+        'base_phone',
         'delivery_carrier_b2c',
     ],
     'description': "",
@@ -28,7 +29,7 @@
     ],
     'external_dependencies': {
         'python': [
-            'roulier'  # 'git+https://github.com/akretion/roulier.git'
+            'roulier',  # 'git+https://github.com/akretion/roulier.git'
         ],
     },
     'tests': [],
