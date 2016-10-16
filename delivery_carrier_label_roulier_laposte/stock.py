@@ -186,7 +186,7 @@ class StockPicking(models.Model):
         return:
             dict
         """
-        address = self._roulier_convert_address(partner)
+        address = self._roulier_convert_address(partner) or {}
         # get_split_adress from partner_helper module
         streets = partner._get_split_address(partner, 3, 38)
         address['street'], address['street2'], address['street3'] = streets
@@ -198,16 +198,32 @@ class StockPicking(models.Model):
         return address
 
     @api.model
-    def _laposte_error_handling(self, error_dict):
-        map_errors = {
-            u"Le num\xe9ro / libell\xe9 de voie du destinataire n'a pas "
-            u"\xe9t\xe9 transmis":
-            u"La 2ème rue du client partenaire est vide ou invalide",
-            u"Le num\xe9ro de portable du destinataire est incorrect":
-            u"Le téléphone du client ne doit comporter que des chiffres "
-            u"ou le symbole +",
-        }
-        message = error_dict.get('message')
-        if message and message.get('message') in map_errors.keys():
-            error_dict['message']['Implication probable dans odoo'] = (
-                map_errors[message['message']])
+    def _laposte_error_handling(self, error_message):
+        if error_message.get('api_call_exception'):
+            # InvalidInputException
+            # on met des clés plus explicites vis à vis des objets odoo
+            map_replace = {
+                'to_address': 'adresse client',
+                'from_address': 'adresse de la societe',
+            }
+            for key, value in map_replace.items():
+                if key in error_message['api_call_exception']:
+                    error_message['api_call_exception'][value] = (
+                        error_message['api_call_exception'][key])
+                    del error_message['api_call_exception'][key]
+        elif error_message.get('message'):
+            # Webservice error
+            # on contextualise les réponses ws aux objets Odoo
+            map_error_messages = {
+                u"Le num\xe9ro / libell\xe9 de voie du destinataire n'a pas "
+                u"\xe9t\xe9 transmis":
+                u"La 2ème rue du client partenaire est vide ou invalide",
+                u"Le num\xe9ro de portable du destinataire est incorrect":
+                u"Le téléphone du client ne doit comporter que des chiffres "
+                u"ou le symbole +",
+            }
+            message = error_message.get('message')
+            if message and message.get('message') in map_error_messages.keys():
+                error_message['message']['Implication probable dans odoo'] = (
+                    map_error_messages[message['message']])
+        return error_message

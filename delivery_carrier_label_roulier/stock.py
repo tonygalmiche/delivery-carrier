@@ -13,6 +13,7 @@ from openerp.exceptions import Warning as UserError
 _logger = logging.getLogger(__name__)
 try:
     from roulier import roulier
+    from roulier.exception import InvalidApiInput
 except ImportError:
     _logger.debug('Cannot `import roulier`.')
 
@@ -216,11 +217,16 @@ class StockPicking(models.Model):
         # puisse ajouter ses merdes à payload
         payload = self._before_call(package_id, payload)
         # vrai appel a l'api
-        ret = roulier_instance.get_label(payload)
+        try:
+            ret = roulier_instance.get_label(payload)
+        except InvalidApiInput as e:
+            raise UserError(self._error_handling(e.message))
+        except Exception as e:
+            raise UserError(e.message)
 
         # minimum error handling
         if ret.get('status', '') == 'error':
-            self._error_handling(ret)
+            ret = self._error_handling(ret)
             raise UserError(_(ret.get('message', 'WebService error')))
 
         # give result to someonelese
@@ -255,15 +261,6 @@ class StockPicking(models.Model):
             address['company'] = partner.parent_id.name
         # Codet ISO 3166-1-alpha-2 (2 letters code)
         address['country'] = partner.country_id.code
-        return self._roulier_clean_phones(address)
-
-    def _roulier_clean_phones(self, address):
-        # TODO make more cleaner with phone library
-        # some prehistoric operators don't do that themselves
-        for field in ['phone', 'mobile']:
-            if address.get(field):
-                address[field] = address[field].replace(' ', '')
-        return address
 
     def _roulier_is_our(self):
         """Called only by non-roulier deliver methods."""
