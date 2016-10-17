@@ -22,7 +22,7 @@ class StockTransferDetails(models.TransientModel):
         """ All carriers using roulier needs package, let's check
         """
         selection = self.picking_id._fields['carrier_type'].selection(self)
-        # selection = [('dummy', 'DUMMY'), ('carrier1', 'Carrier 1')]
+        # selection is [('dummy', 'DUMMY'), ('carrier1', 'Carrier 1'), ...]
         map_selection = {x[0]: x[1] for x in selection}
         needs_package = False
         if map_selection[self.picking_id.carrier_type] in dir(roulier):

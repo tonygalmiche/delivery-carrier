@@ -138,7 +138,7 @@ class StockPicking(models.Model):
         pass
 
     @implemented_by_carrier
-    def _error_handling(self, error_dict):
+    def _error_handling(self, payload, response):
         pass
     # end of API
 
@@ -220,16 +220,15 @@ class StockPicking(models.Model):
         try:
             ret = roulier_instance.get_label(payload)
         except InvalidApiInput as e:
-            raise UserError(self._error_handling(e.message))
+            raise UserError(self._error_handling(payload, e.message))
         except Exception as e:
             raise UserError(e.message)
 
         # minimum error handling
         if ret.get('status', '') == 'error':
-            ret = self._error_handling(ret)
-            raise UserError(_(ret.get('message', 'WebService error')))
+            raise UserError(self._error_handling(payload, ret))
 
-        # give result to someonelese
+        # give result to someone else
         return self._after_call(package_id, ret)
 
     # helpers
@@ -261,6 +260,7 @@ class StockPicking(models.Model):
             address['company'] = partner.parent_id.name
         # Codet ISO 3166-1-alpha-2 (2 letters code)
         address['country'] = partner.country_id.code
+        return address
 
     def _roulier_is_our(self):
         """Called only by non-roulier deliver methods."""
@@ -337,5 +337,6 @@ class StockPicking(models.Model):
         return sender.country_id.code == receiver.country_id.code
 
     @api.model
-    def _roulier_error_handling(self, error_dict):
-        pass
+    def _roulier_error_handling(self, payload, response):
+        return _(u'Sent data:\n%s\n\nException raised:\n%s\n' % (
+            payload, self._error_handling(payload, response)))

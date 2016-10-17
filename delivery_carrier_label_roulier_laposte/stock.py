@@ -5,7 +5,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 from openerp.tools.config import config
-from openerp import models, fields, api
+from openerp import models, fields, api, _
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 import openerp.addons.decimal_precision as dp
 
@@ -198,32 +198,42 @@ class StockPicking(models.Model):
         return address
 
     @api.model
-    def _laposte_error_handling(self, error_message):
-        if error_message.get('api_call_exception'):
+    def _laposte_error_handling(self, payload, response):
+        ret_mess = u'Données transmises:\n%s\n\nExceptions levées%s\n%s'
+        if response.get('api_call_exception'):
             # InvalidInputException
             # on met des clés plus explicites vis à vis des objets odoo
-            map_replace = {
-                'to_address': 'adresse client',
-                'from_address': 'adresse de la societe',
-            }
-            for key, value in map_replace.items():
-                if key in error_message['api_call_exception']:
-                    error_message['api_call_exception'][value] = (
-                        error_message['api_call_exception'][key])
-                    del error_message['api_call_exception'][key]
-        elif error_message.get('message'):
+            suffix = (u"\nSignification des clés dans le contexte Odoo:\n"
+                      u"- 'to_address' correspond à 'adresse client'\n"
+                      u"- 'from_address' correspond à 'adresse de la société'")
+            password = payload['auth']['password']
+            message = u'Données transmises:\n%s\n\nExceptions levées%s\n%s' % (
+                payload, response, suffix)
+            message = message.replace(password, '****')
+            return message
+        elif response.get('message'):
             # Webservice error
             # on contextualise les réponses ws aux objets Odoo
-            map_error_messages = {
+            map_responses = {
                 u"Le num\xe9ro / libell\xe9 de voie du destinataire n'a pas "
                 u"\xe9t\xe9 transmis":
-                u"La 2ème rue du client partenaire est vide ou invalide",
+                u"La 2eme rue du client partenaire est vide ou invalide",
+
                 u"Le num\xe9ro de portable du destinataire est incorrect":
-                u"Le téléphone du client ne doit comporter que des chiffres "
-                u"ou le symbole +",
+                u"Le telephone du client ne doit comporter que des chiffres "
+                u"ou le symbole +: convertissez tous vos N° de telephone "
+                u"au format standard a partir du menu suivant:\n"
+                u"Configuration > Technique > Telephonie > Reformate "
+                u"les numeros de telephone ",
             }
-            message = error_message.get('message')
-            if message and message.get('message') in map_error_messages.keys():
-                error_message['message']['Implication probable dans odoo'] = (
-                    map_error_messages[message['message']])
-        return error_message
+            message = response.get('message')
+            param_message = {'ws_exception': response['message'],
+                             'resolution': ''}
+            if message and message.get('message') in map_responses.keys():
+                param_message['resolution'] = map_responses[
+                    message['message']]
+            ret_mess = _("Incident\n-----------\nReponse de Laposte:\n"
+                         "%(ws_exception)s\n\n"
+                         "Resolution\n-------------\n%(resolution)s"
+                         % param_message)
+        return ret_mess
