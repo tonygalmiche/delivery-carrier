@@ -13,6 +13,7 @@ from openerp.exceptions import Warning as UserError
 _logger = logging.getLogger(__name__)
 try:
     from roulier import roulier
+    from roulier.exception import InvalidApiInput
 except ImportError:
     _logger.debug('Cannot `import roulier`.')
 
@@ -135,9 +136,18 @@ class StockPicking(models.Model):
     @implemented_by_carrier
     def _convert_address(self, partner):
         pass
+
+    @implemented_by_carrier
+    def _is_roulier(self):
+        pass
+
+    @implemented_by_carrier
+    def _error_handling(self, payload, response):
+        pass
     # end of API
 
     # Core functions
+
     @api.multi
     def _roulier_generate_labels(self, package_ids=None):
         # call generate_shipping_labels for each package
@@ -211,13 +221,18 @@ class StockPicking(models.Model):
         # puisse ajouter ses merdes à payload
         payload = self._before_call(package_id, payload)
         # vrai appel a l'api
-        ret = roulier_instance.get_label(payload)
+        try:
+            ret = roulier_instance.get_label(payload)
+        except InvalidApiInput as e:
+            raise UserError(self._error_handling(payload, e.message))
+        except Exception as e:
+            raise UserError(e.message)
 
         # minimum error handling
         if ret.get('status', '') == 'error':
-            raise UserError(_(ret.get('message', 'WebService error')))
+            raise UserError(self._error_handling(payload, ret))
 
-        # give result to someonelese
+        # give result to someone else
         return self._after_call(package_id, ret)
 
     # helpers
@@ -249,15 +264,12 @@ class StockPicking(models.Model):
             address['company'] = partner.parent_id.name
         # Codet ISO 3166-1-alpha-2 (2 letters code)
         address['country'] = partner.country_id.code
-        return self._roulier_clean_phones(address)
-
-    def _roulier_clean_phones(self, address):
-        # TODO make more cleaner with phone library
-        # some prehistoric operators don't do that themselves
-        for field in ['phone', 'mobile']:
-            if address.get(field):
-                address[field] = address[field].replace(' ', '')
         return address
+
+    @api.multi
+    def _roulier_is_roulier(self):
+        self.ensure_one()
+        return self.carrier_type in roulier.get_carriers()
 
     def _roulier_is_our(self):
         """Called only by non-roulier deliver methods."""
@@ -332,3 +344,8 @@ class StockPicking(models.Model):
         sender = self._get_sender()
         receiver = self._get_receiver()
         return sender.country_id.code == receiver.country_id.code
+
+    @api.model
+    def _roulier_error_handling(self, payload, response):
+        return _(u'Sent data:\n%s\n\nException raised:\n%s\n' % (
+            payload, self._error_handling(payload, response)))

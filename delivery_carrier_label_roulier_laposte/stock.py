@@ -4,13 +4,10 @@
 #          Sébastien BEAU
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
-from openerp.tools.config import config
-from openerp import models, fields, api
+from openerp import models, fields, api, _
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
-import openerp.addons.decimal_precision as dp
 
 from datetime import datetime, timedelta
-LAPOSTE_CARRIER_TYPE = 'laposte'
 
 
 class StockPicking(models.Model):
@@ -28,9 +25,6 @@ class StockPicking(models.Model):
         help="Type of sending for the customs",
         default="3")  # todo : extraire ca dans roulier_international
 
-    def _laposte_is_our(self):
-        return self.carrier_id.type == LAPOSTE_CARRIER_TYPE
-
     def _laposte_before_call(self, package_id, request):
         def cacl_package_price(package_id):
             return sum(
@@ -47,11 +41,13 @@ class StockPicking(models.Model):
 
     def _laposte_after_call(self, package_id, response):
         # CN23 is included in the pdf url
-        return {
+        custom_response = {
             'name': response['parcelNumber'],
-            'url': response['url'],
-            'type': 'url',
         }
+        if response.get('url'):
+            custom_response['url'] = response['url']
+            custom_response['type'] = 'url'
+        return custom_response
 
     def _laposte_get_shipping_date(self, package_id):
         """Estimate shipping date."""
@@ -184,7 +180,7 @@ class StockPicking(models.Model):
         return:
             dict
         """
-        address = self._roulier_convert_address(partner)
+        address = self._roulier_convert_address(partner) or {}
         # get_split_adress from partner_helper module
         streets = partner._get_split_address(partner, 3, 38)
         address['street'], address['street2'], address['street3'] = streets
@@ -194,3 +190,44 @@ class StockPicking(models.Model):
                 and partner.firstname:
             address['firstName'] = partner.firstname
         return address
+
+    @api.model
+    def _laposte_error_handling(self, payload, response):
+        ret_mess = u'Données transmises:\n%s\n\nExceptions levées%s\n%s'
+        if response.get('api_call_exception'):
+            # InvalidInputException
+            # on met des clés plus explicites vis à vis des objets odoo
+            suffix = (u"\nSignification des clés dans le contexte Odoo:\n"
+                      u"- 'to_address' correspond à 'adresse client'\n"
+                      u"- 'from_address' correspond à 'adresse de la société'")
+            password = payload['auth']['password']
+            message = u'Données transmises:\n%s\n\nExceptions levées%s\n%s' % (
+                payload, response, suffix)
+            message = message.replace(password, '****')
+            return message
+        elif response.get('message'):
+            # Webservice error
+            # on contextualise les réponses ws aux objets Odoo
+            map_responses = {
+                u"Le num\xe9ro / libell\xe9 de voie du destinataire n'a pas "
+                u"\xe9t\xe9 transmis":
+                u"La 2eme rue du client partenaire est vide ou invalide",
+
+                u"Le num\xe9ro de portable du destinataire est incorrect":
+                u"Le telephone du client ne doit comporter que des chiffres "
+                u"ou le symbole +: convertissez tous vos N° de telephone "
+                u"au format standard a partir du menu suivant:\n"
+                u"Configuration > Technique > Telephonie > Reformate "
+                u"les numeros de telephone ",
+            }
+            message = response.get('message')
+            param_message = {'ws_exception': response['message'],
+                             'resolution': ''}
+            if message and message.get('message') in map_responses.keys():
+                param_message['resolution'] = map_responses[
+                    message['message']]
+            ret_mess = _("Incident\n-----------\nReponse de Laposte:\n"
+                         "%(ws_exception)s\n\n"
+                         "Resolution\n-------------\n%(resolution)s"
+                         % param_message)
+        return ret_mess
