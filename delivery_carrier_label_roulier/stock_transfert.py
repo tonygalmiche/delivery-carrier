@@ -8,10 +8,6 @@ from openerp import _, api, models
 from openerp.exceptions import Warning as UserError
 
 _logger = logging.getLogger(__name__)
-try:
-    from roulier import roulier
-except ImportError:
-    _logger.debug('Cannot `import roulier`.')
 
 
 class StockTransferDetails(models.TransientModel):
@@ -21,12 +17,7 @@ class StockTransferDetails(models.TransientModel):
     def do_detailed_transfer(self):
         """ All carriers using roulier needs package, let's check
         """
-        selection = self.picking_id._fields['carrier_type'].selection(self)
-        # selection is [('dummy', 'DUMMY'), ('carrier1', 'Carrier 1'), ...]
-        map_selection = {x[0]: x[1] for x in selection}
-        needs_package = False
-        if map_selection[self.picking_id.carrier_type] in dir(roulier):
-            needs_package = True
+        needs_package = self.picking_id._is_roulier()
         for item in self.item_ids:
             if needs_package and not (
                     item.package_id or item.result_package_id):

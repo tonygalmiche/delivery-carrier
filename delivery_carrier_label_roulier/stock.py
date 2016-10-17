@@ -138,6 +138,10 @@ class StockPicking(models.Model):
         pass
 
     @implemented_by_carrier
+    def _is_roulier(self):
+        pass
+
+    @implemented_by_carrier
     def _error_handling(self, payload, response):
         pass
     # end of API
@@ -261,6 +265,11 @@ class StockPicking(models.Model):
         # Codet ISO 3166-1-alpha-2 (2 letters code)
         address['country'] = partner.country_id.code
         return address
+
+    @api.multi
+    def _roulier_is_roulier(self):
+        self.ensure_one()
+        return self.carrier_type in roulier.get_carriers()
 
     def _roulier_is_our(self):
         """Called only by non-roulier deliver methods."""

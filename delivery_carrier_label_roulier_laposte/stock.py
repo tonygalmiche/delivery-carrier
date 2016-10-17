@@ -4,13 +4,10 @@
 #          Sébastien BEAU
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
-from openerp.tools.config import config
 from openerp import models, fields, api, _
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
-import openerp.addons.decimal_precision as dp
 
 from datetime import datetime, timedelta
-LAPOSTE_CARRIER_TYPE = 'laposte'
 
 
 class StockPicking(models.Model):
@@ -27,9 +24,6 @@ class StockPicking(models.Model):
         ],
         help="Type of sending for the customs",
         default="3")  # todo : extraire ca dans roulier_international
-
-    def _laposte_is_our(self):
-        return self.carrier_id.type == LAPOSTE_CARRIER_TYPE
 
     def _laposte_before_call(self, package_id, request):
         def cacl_package_price(package_id):
