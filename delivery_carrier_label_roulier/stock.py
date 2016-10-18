@@ -59,8 +59,7 @@ class StockPicking(models.Model):
     def generate_labels(self, package_ids=None):
         """See base_delivery_carrier_label/stock.py."""
         self.ensure_one()
-
-        if self._is_our():
+        if self._is_roulier():
             return self._roulier_generate_labels(
                 package_ids=package_ids)
         _super = super(StockPicking, self)
@@ -71,13 +70,13 @@ class StockPicking(models.Model):
         """See base_delivery_carrier_label/stock.py."""
         self.ensure_one()
 
-        if self._is_our():
+        if self._is_roulier():
             return self._roulier_generate_shipping_labels(
                 package_ids=package_ids)
         _super = super(StockPicking, self)
         return _super.generate_shipping_labels(package_ids=package_ids)
 
-    # end of base_label API implementataion
+    # end of base_label API implementation
 
     # API
     @implemented_by_carrier
@@ -171,7 +170,6 @@ class StockPicking(models.Model):
             elif label.get('data'):
                 data['datas'] = label['data'].encode('base64')
                 data['type'] = 'binary'
-
             self.env['shipping.label'].create(data)
         return True
 
@@ -231,7 +229,6 @@ class StockPicking(models.Model):
         # minimum error handling
         if ret.get('status', '') == 'error':
             raise UserError(self._error_handling(payload, ret))
-
         # give result to someone else
         return self._after_call(package_id, ret)
 
@@ -270,11 +267,6 @@ class StockPicking(models.Model):
     def _roulier_is_roulier(self):
         self.ensure_one()
         return self.carrier_type in roulier.get_carriers()
-
-    def _roulier_is_our(self):
-        """Called only by non-roulier deliver methods."""
-        # don't override it
-        return False
 
     # default implementations
 

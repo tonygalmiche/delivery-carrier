@@ -26,14 +26,14 @@ class StockPicking(models.Model):
         default="3")  # todo : extraire ca dans roulier_international
 
     def _laposte_before_call(self, package_id, request):
-        def cacl_package_price(package_id):
+        def calc_package_price(package_id):
             return sum(
                 [op.product_id.list_price * op.product_qty
                     for op in package_id.get_operations()]
             )
         request['parcel']['nonMachinable'] = package_id.laposte_non_machinable
         request['service']['totalAmount'] = '%.f' % (  # truncate to string
-            cacl_package_price(package_id) * 100  # totalAmount is in centimes
+            calc_package_price(package_id) * 100  # totalAmount is in centimes
         )
         request['service']['transportationAmount'] = 10  # how to set this ?
         request['service']['returnTypeChoice'] = 3  # do not return to sender
@@ -43,6 +43,7 @@ class StockPicking(models.Model):
         # CN23 is included in the pdf url
         custom_response = {
             'name': response['parcelNumber'],
+            'data': response.get('label'),
         }
         if response.get('url'):
             custom_response['url'] = response['url']

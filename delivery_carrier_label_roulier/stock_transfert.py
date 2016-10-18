@@ -15,7 +15,8 @@ class StockTransferDetails(models.TransientModel):
 
     @api.one
     def do_detailed_transfer(self):
-        """ All carriers using roulier needs package, let's check
+        """ All carriers using roulier needs package
+            This code prevent validate picking with roulier carrier
         """
         needs_package = self.picking_id._is_roulier()
         for item in self.item_ids:

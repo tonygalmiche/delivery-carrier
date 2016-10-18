@@ -17,6 +17,7 @@
     'depends': [
         'partner_helper',
         'base_phone',
+        'document',
         'delivery_carrier_b2c',
     ],
     'description': "",
