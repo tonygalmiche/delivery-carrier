@@ -6,9 +6,6 @@
 from openerp import models, fields
 from openerp import api
 
-# TODO move to new api
-# seems there is a bug with related field in new api (at least for transient)
-
 
 class LaposteConfigSettings(models.TransientModel):
     _name = 'laposte.config.settings'

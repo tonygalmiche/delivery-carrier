@@ -19,7 +19,6 @@
     'website': 'http://www.akretion.com/',
     'data': [
         'data/delivery.xml',
-        # 'stock_view.xml',
     ],
     'demo': [
     ],
