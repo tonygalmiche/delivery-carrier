@@ -52,8 +52,8 @@ Contributors
     'website': 'http://www.akretion.com/',
     'data': [
         'data/delivery.xml',
-        'config_view.xml',
-        'stock_view.xml',
+        'views/config_view.xml',
+        'views/stock_view.xml',
     ],
     'demo': [
         'demo/res.partner.csv',
