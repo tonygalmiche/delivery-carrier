@@ -41,9 +41,9 @@ Contributors
         'views/partner_view.xml',
         'views/sale_view.xml',
     ],
+    'demo': [
+        'demo/demo.xml',
+    ],
     'license': 'AGPL-3',
-    'external_dependencies': {
-        'python': ['unicodecsv'],
-    },
     'installable': True,
 }

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+<data>
+
+    <!-- PARTNER -->
+    <record id="partner_carrier_dropoff_demo" model="res.partner">
+        <field name="name">Dropoff Site Carrier</field>
+        <field name="customer" eval="False"/>
+        <field name="supplier" eval="True"/>
+        <field name="street">parcel street</field>
+        <field name="zip">99999</field>
+        <field name="city">XXXXXX</field>
+    </record>
+
+    <!-- PRODUCT  -->
+    <record id="product_carrier_dropoff_demo" model="product.product">
+        <field name="default_code">SHIP_DEMO_DS</field>
+        <field name="standard_price">0.0</field>
+        <field name="type">service</field>
+        <field name="name">Shipping demo Dropoff Site</field>
+        <field name="categ_id">1</field>
+    </record>
+
+
+    <!-- DELIVERY CARRIER -->
+    <record id="delivery_carrier_dropoff" model="delivery.carrier">
+        <field name="name">Carrier with Dropoff Site</field>
+        <!-- <field name="type">dummy</field> -->
+        <field name="code">DUMMYDS</field>
+        <field name="use_detailed_pricelist" eval="1"/>
+        <field name="partner_id"
+               ref="delivery_dropoff_site.partner_carrier_dropoff_demo"/>
+        <field name="product_id"
+               ref="delivery_dropoff_site.product_carrier_dropoff_demo"/>
+    </record>
+
+    <record id="dropoff_site_delivery_carrier_template_DS" model="delivery.carrier.option">
+        <field name="readonly_flag" eval="True"/>
+        <field name="mandatory" eval="True"/>
+        <field name="by_default" eval="True"/>
+        <field name="carrier_id" ref="delivery_carrier_dropoff"/>
+        <field name="tmpl_option_id"
+               ref="delivery_dropoff_site.delivery_carrier_template_to_dropoff_site"/>
+    </record>
+
+
+</data>
+</openerp>

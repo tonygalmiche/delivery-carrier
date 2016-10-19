@@ -65,7 +65,7 @@ class ResPartner(models.Model):
 
 
 class AbstractDropoffSite(models.AbstractModel):
-    """ For perfmodelsance needs, you may insert raw dropoff datas in an sql
+    """ For performance needs, you may insert raw dropoff datas in an sql
         temporary table. In this cases inherit of this class
     """
     _name = 'abstract.dropoff.site'
