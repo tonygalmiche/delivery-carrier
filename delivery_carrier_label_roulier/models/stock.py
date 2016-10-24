@@ -244,8 +244,8 @@ class StockPicking(models.Model):
         """
         address = {}
         extract_fields = [
-            'name', 'zip', 'city', 'phone', 'mobile',
-            'email', 'street1', 'street2']
+            'company', 'name', 'zip', 'city', 'phone', 'mobile',
+            'email', 'street2']
         for elm in extract_fields:
             if elm in partner:
                 # because a value can't be None in odoo's ORM
@@ -257,8 +257,10 @@ class StockPicking(models.Model):
                     # it's a None: nothing to do
                 else:  # it's a boolean: keep the value
                     address[elm] = partner[elm]
-        if partner.parent_id.is_company:
+        if not address.get('company', False) and partner.parent_id.is_company:
             address['company'] = partner.parent_id.name
+        # Roulier needs street1 not street
+        address['street1'] = partner.street
         # Codet ISO 3166-1-alpha-2 (2 letters code)
         address['country'] = partner.country_id.code
         return address
