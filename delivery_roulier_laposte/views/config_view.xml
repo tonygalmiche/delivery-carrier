@@ -12,7 +12,7 @@
         or
         <button string="Cancel" type="object" name="cancel" class="oe_link"/>
         <a href="https://www.coliposte.net" target="_blank">
-            <img src="delivery_carrier_label_roulier_laposte/static/src/img/laposte_small.png"/>
+            <img src="delivery_roulier_laposte/static/src/img/laposte_small.png"/>
         </a>
         <h1 style="display: inline-block">Coliposte</h1>
       </header>
