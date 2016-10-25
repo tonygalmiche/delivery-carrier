@@ -32,26 +32,26 @@ class DepositSlip(models.Model):
                 'date': date,
                 'hour': hour,
                 'depositNumber': self.name,
-                'deliveryContract': self.warehouse.kuehne_delivery_contract,
-                'shippingConfig': self.warehouse.kuehne_shipping_config.upper(),
-                'vatConfig': self.warehouse.kuehne_vat_config.upper(),
-                'invoicingContract': self.warehouse.kuehne_invoicing_contract,
-                'serviceSystem': self.warehouse.kuehne_service_system,
-                'goodsName': self.warehouse.kuehne_goods_name,
+                'deliveryContract': warehouse.kuehne_delivery_contract,
+                'shippingConfig': warehouse.kuehne_shipping_config.upper(),
+                'vatConfig': warehouse.kuehne_vat_config.upper(),
+                'invoicingContract': warehouse.kuehne_invoicing_contract,
+                'serviceSystem': warehouse.kuehne_service_system,
+                'goodsName': warehouse.kuehne_goods_name,
+                'lines': self._kuehne_create_edi_lines(),
+                'lineNumber': self._kuehne_get_line_number(),
             },
             'from_address': {
-                "number": self.warehouse.siren,
-                "siret": self.warehouse.siret,
-                "name": self.warehouse.name,
+                "number": self.company_id.siren,
+                "siret": self.company_id.siret,
+                "name": self.company_id.name,
             },
             'to_address': {
-                "number": self.warehouse.kuehne_siret[:9],
-                "siret": self.warehouse.kuehne_siret,
-                "name": self.warehouse.kuehne_office_name,
+                "number": warehouse.kuehne_siret[:9],
+                "siret": warehouse.kuehne_siret,
+                "name": warehouse.kuehne_office_name,
             }
         }
-        data['lines'] = self._kuehne_create_edi_lines()
-        data['service']['lineNumber'] = self._kuehne_get_line_number()
         return data
 
     @api.multi

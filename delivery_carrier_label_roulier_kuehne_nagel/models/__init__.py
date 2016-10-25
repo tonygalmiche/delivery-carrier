@@ -5,3 +5,4 @@ from . import stock
 from . import delivery
 from . import stock_quant_package
 from . import deposit_slip
+from . import sale

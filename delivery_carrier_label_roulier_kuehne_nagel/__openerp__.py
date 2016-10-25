@@ -21,14 +21,6 @@ Delivery Carrier Kuehne Nagel
 Description
 -----------
 
-Company:
-~~~~~~~~~~
-Some informations have to be filled on two locations :
-
-* company form (Settings > Companies > Companies):
-complete address of the company, included phone
-
-
 
 Technical references
 --------------------
@@ -44,8 +36,11 @@ Contributors
     'website': 'http://www.akretion.com/',
     'data': [
         'data/external_file.xml',
+        'data/email_template.xml',
         'views/config_view.xml',
         'views/stock_view.xml',
+        'views/sale_view.xml',
+        'views/directional_code_view.xml',
     ],
     'demo': [
         #   'demo/res.partner.csv',

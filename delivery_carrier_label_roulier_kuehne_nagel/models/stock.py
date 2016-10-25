@@ -13,6 +13,7 @@ from openerp.tools.config import config
 from openerp import models, fields, api
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 import openerp.addons.decimal_precision as dp
+from openerp.exceptions import Warning as UserError
 
 from datetime import datetime, timedelta
 
@@ -48,38 +49,40 @@ class StockPicking(models.Model):
         return self.carrier_id.type == KUEHNE_CARRIER_TYPE
 
     def _kuehne_get_directional_code(self):
-        directional_codes = self.env['kuehne.directional.code'].search([
-            ('start_date', '<=', fields.Date.today()),
-            ('country_from_id', '=', self.warehouse.country_id.id),
-            ('country_to_id', '=', self.partner_id.country_id.id),
-            ('first_zip', '<=', self.partner_id.zip),
-            ('last_zip', '>=', self.partner_id.zip)
-        ])
-        if directional_codes:
-            if len(directional_codes) == 1:
-                return {
-                    'office': directional_codes.office_code,
-                    'round': directional_codes.office_round,
-                    'export_hub': directional_codes.export_hub
-                }
-        return {'office': '', 'round': '', 'export_hub': ''}
+        directional_code = False
+        if self.sale_id and self.sale_id.directional_code_id:
+            directional_code = self.sale_id.directional_code_id
+        else:
+            directional_code = self.env['directional.code']._search_directional_code(
+                self.company_id.country_id.id,
+                self.partner_id.country_id.id,
+                self.partner_id.zip,
+                self.partner_id.city
+                )
+        if not directional_code:
+            raise UserError(_('No directional code found for the picking %s !' % self.id))
+        return {
+            'office': directional_code.office_code,
+            'round': directional_code.office_round,
+            'export_hub': directional_code.export_hub
+        }
 
     def _kuehne_before_call(self, package_id, request):
         directional_code = self._kuehne_get_directional_code()
         warehouse = self.picking_type_id.warehouse_id
         office_name = "KUEHNE NAGEL ROAD / AG : %s %s %s" % (
-            self.warehouse.kuehne_office_country_id.code.upper(),
-            self.warehouse.kuehne_office_code,
-            self.warehouse.kuehne_office_name)
+            warehouse.kuehne_office_country_id.code.upper(),
+            warehouse.kuehne_office_code,
+            warehouse.kuehne_office_name)
         sender_name = "%s/%s/%s/%s" % (
-            self.warehouse.name,
-            self.warehouse.country_id.code.upper(),
-            self.warehouse.zip,
-            self.warehouse.city)
+            self.company_id.name,
+            self.company_id.country_id.code.upper(),
+            self.company_id.zip,
+            self.company_id.city)
         request.update({
             'service': {
                 'shippingDate': self.date_done,
-                'goodsName': self.warehouse.kuehne_goods_name,
+                'goodsName': warehouse.kuehne_goods_name,
                 'epalQuantity': 0,
                 'shippingOffice': directional_code['office'],
                 'shippingRound': directional_code['round'],
@@ -87,14 +90,14 @@ class StockPicking(models.Model):
                 'mhuQuantity': len(self._get_packages_from_picking()),
                 'weight': self.weight,
                 'volume': self.volume,
-                'deliveryContract': self.warehouse.kuehne_delivery_contract,
+                'deliveryContract': warehouse.kuehne_delivery_contract,
                 'exportHub': directional_code['export_hub'],
                 'orderName': self.sale_id.name,
-                'shippingConfig': self.warehouse.kuehne_shipping_config.upper(),
-                'vatConfig': self.warehouse.kuehne_vat_config.upper(),
-                'invoicingContract': self.warehouse.kuehne_invoicing_contract,
+                'shippingConfig': warehouse.kuehne_shipping_config.upper(),
+                'vatConfig': warehouse.kuehne_vat_config.upper(),
+                'invoicingContract': warehouse.kuehne_invoicing_contract,
                 'deliveryType': self.kuehne_delivery_type.upper(),
-                'serviceSystem': self.warehouse.kuehne_service_system,
+                'serviceSystem': warehouse.kuehne_service_system,
                 'note': self.note,
                 'kuehneOfficeName': office_name
             }
@@ -160,3 +163,17 @@ class StockPicking(models.Model):
         #        opt_key = str(opt.tmpl_option_id['code'].lower())
         #        option[opt_key] = True
         return option
+
+    @api.model
+    def _kuehne_error_handling(self, payload, response):
+        ret_mess = 'Erreur!'
+        if response.get('api_call_exception'):
+            # InvalidInputException
+            # on met des clés plus explicites vis à vis des objets odoo
+            suffix = (u"\nSignification des clés dans le contexte Odoo:\n"
+                      u"- 'to_address' correspond à 'adresse client'\n"
+                      u"- 'from_address' correspond à 'adresse de la société'")
+            message = u'Données transmises:\n%s\n\nExceptions levées%s\n%s' % (
+                payload, response, suffix)
+            return message
+        return ret_mess
