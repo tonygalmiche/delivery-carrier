@@ -29,7 +29,7 @@ class SaleOrder(models.Model):
         res = super(SaleOrder, self).action_button_confirm()
         if not self.directional_code_id:
             email_template = self.env.ref(
-                'delivery_carrier_label_roulier_kuehne_nagel.missing_directional_code_template')
+                'delivery_roulier_kuehne_nagel.missing_directional_code_template')
             email_template.send_mail(self.id)
         return res
 

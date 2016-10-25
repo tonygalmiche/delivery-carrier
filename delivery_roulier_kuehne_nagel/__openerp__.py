@@ -9,7 +9,7 @@
     'category': 'Warehouse',
     'depends': [
         'delivery_carrier_b2c',
-        'delivery_carrier_label_roulier',
+        'delivery_roulier',
         'delivery_carrier_deposit',
         'external_file_location',
     ],
