@@ -2,30 +2,48 @@
 <openerp>
 <data>
 
+    <record id="view_partner_form" model="ir.ui.view">
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <field name="user_id" position="before">
+                <field name="dropoff_site"/>
+            </field>
+        </field>
+    </record>
+
     <record id="view_partner_dropoff_site_form" model="ir.ui.view">
         <field name="model">partner.dropoff.site</field>
         <field name="arch" type="xml">
-            <form string="Drop-off Sites" version="7.0">
+            <form string="Drop-off Sites">
                 <sheet>
                     <h1>
                         <label for="name" string="Site"/>
                         <field name="name" class="oe_inline"/>
                     </h1>
+                    <separator string="Partner infos"/>
                     <group name="address" col="4">
-                        <field name="street"/>
-                        <field name="street2"/>
-                        <field name="zip"/>
-                        <field name="city"/>
+                        <group colspan="2">
+                            <field name="ref" string="Reference" required="True"/>
+                            <field name="zip"/>
+                            <field name="city"/>
+                        </group>
+                        <group colspan="2">
+                            <button name="goto_partner_button" type="object"
+                                    string="Related Partner" colspan="2"
+                                    class="oe_form_readonly oe_link"/>
+                            <field name="street"/>
+                            <field name="street2"/>
+                        </group>
                     </group>
-                    <separator string="Specific infos"/>
+                    <separator string="Dropoff Site infos"/>
                     <group name="main" col="4">
                         <group name="left">
-                            <field name="code" class="oe_inline"/>
-                            <field name="weight" class="oe_inline"/>
-                        </group>
-                        <group name="right">
                             <field name="dropoff_type" class="oe_inline"/>
                             <field name="subtype" class="oe_inline"/>
+                        </group>
+                        <group name="right">
+                            <field name="weight" class="oe_inline"/>
                         </group>
                     </group>
                     <br/>
@@ -46,7 +64,6 @@
                 <field name="name"/>
                 <field name="zip"/>
                 <field name="city"/>
-                <field name="code"/>
                 <field name="weight"/>
                 <field name="subtype"/>
                 <field name="dropoff_type"/>
@@ -64,7 +81,6 @@
                 <field name="city" select="True"/>
                 <field name="subtype" select="True"/>
                 <field name="dropoff_type" select="True"/>
-                <field name="code" select="True"/>
             </search>
         </field>
     </record>

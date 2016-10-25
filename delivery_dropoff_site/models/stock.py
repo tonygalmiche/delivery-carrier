@@ -3,8 +3,7 @@
 #        Sébastien BEAU <sebastien.beau@akretion.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
-from openerp import _, api, models, fields
-from openerp.exceptions import Warning as UserError
+from openerp import api, models, fields
 
 
 class StockPicking(models.Model):
@@ -23,18 +22,31 @@ class StockPicking(models.Model):
         compute='_compute_final_recipient',
         help='Use to facilitate display')
 
+    @api.onchange('final_partner_id')
+    def onchange_partner_id(self):
+        if self.final_partner_id:
+            return {'domain': {'partner_id': [('dropoff_site', '=', True)]}}
+
     @api.multi
     @api.depends('option_ids')
     def _compute_final_recipient(self):
+        dropoff_site_opt = self.env.ref(
+            'delivery_dropoff_site.'
+            'delivery_carrier_template_to_dropoff_site', False)
+        if not dropoff_site_opt:
+            # At install process this xml data is not
+            # there, so has_final_recipient field can't be computed.
+            # No problem only useful for new data.
+            return
         for rec in self:
-            dropoff_site_opt = self.env.ref(
-                'delivery_dropoff_site.'
-                'delivery_carrier_template_to_dropoff_site')
             if dropoff_site_opt in [x.tmpl_option_id for x in rec.option_ids]:
                 rec.has_final_recipient = True
                 rec.final_partner_id = rec.partner_id
+                rec.partner_id = False
             else:
                 rec.has_final_recipient = False
+                if rec.final_partner_id:
+                    rec.partner_id = rec.final_partner_id
 
     @api.multi
     def _check_dropoff_site_according_to_carrier(self):
@@ -47,18 +59,17 @@ class StockPicking(models.Model):
     @api.multi
     def goto_dropoff_button(self):
         self.ensure_one()
-        ids = self.env['partner.dropoff.site'].search(
-            [('partner_id', '=', self.partner_id.id)])
-        if ids:
-            return {
-                'name': 'Dropoff Site',
-                'view_mode': 'form',
-                'res_id': ids[0],
-                'res_model': 'partner.dropoff.site',
-                'type': 'ir.actions.act_window',
-                'nodestroy': True,
-                'target': 'current',
-            }
-        raise UserError(_(
-            "There is no Dropoff Site for this partner. "
-            "Create it one first to access data."))
+        action = {
+            'name': 'Dropoff Site %s' % self.carrier_type,
+            'view_mode': 'tree,form',
+            'res_model': 'partner.dropoff.site',
+            'type': 'ir.actions.act_window',
+            'target': 'current',
+            'context': {'default_dropoff_type': self.carrier_type},
+        }
+        dropoffs = self.env['partner.dropoff.site'].search(
+            [('dropoff_type', '=', self.carrier_type)])
+        if dropoffs:
+            dropoff_ids = [x.id for x in dropoffs]
+            action['domain'] = [('id', 'in', dropoff_ids), ]
+        return action
