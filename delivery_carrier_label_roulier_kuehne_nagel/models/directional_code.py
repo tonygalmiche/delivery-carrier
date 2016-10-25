@@ -21,6 +21,8 @@ import unicodecsv
 class KuehneDirectionalCode(models.Model):
     _name = 'kuehne.directional.code'
 
+    _rec_name = 'city_to'
+
     start_date = fields.Date(
         "Start date",
         help="Code valid from this date",
@@ -42,6 +44,51 @@ class KuehneDirectionalCode(models.Model):
     office_code = fields.Char()
     office_round = fields.Char()
     export_hub = fields.Char()
+
+    @api.multi
+    def name_get(self):
+        res = []
+        for record in self:
+            name = "%s - %s %s %s" % (
+                record.country_to_id.code, record.city_to, record.first_zip,
+                record.last_zip)
+            res.append((record.id, name))
+        return res
+
+    @api.model
+    def name_search(self, name, args=None, operator='ilike', limit=80):
+        if self._context.get('company_id'):
+            company = self.env['res.company'].browse(self._context['company_id'])
+            args.append(['country_from_id', '=', company.country_id.id])
+        if self._context.get('partner_shipping_id'):
+            partner = self.env['res.partner'].browse(self._context['partner_shipping_id'])
+            args += [
+                ['country_to_id', '=', partner.country_id.id],
+                ['first_zip', '<=', partner.zip],
+                ['last_zip', '>=', partner.zip]]
+        results = super(KuehneDirectionalCode, self).name_search(
+            name, args=args ,operator=operator, limit=limit)
+        return results
+
+    @api.model
+    def _search_directional_code(self, country_from, country_to, zip_code, city):
+        directional_code = False
+        directional_codes = self.env['kuehne.directional.code'].search([
+            ('start_date', '<=', fields.Date.today()),
+            ('country_from_id', '=', country_from),
+            ('country_to_id', '=', country_to),
+            ('first_zip', '<=', zip_code),
+            ('last_zip', '>=', zip_code)
+        ])
+        if directional_codes:
+            if len(directional_codes) == 1:
+                directional_code = directional_codes
+            else:
+                for code in directional_codes:
+                    conv_city = city.lower().replace("'", '')
+                    if code.city_to.lower() == conv_city:
+                        directional_code = code
+        return directional_code
 
     @api.model
     def import_directional_code(self, data):
