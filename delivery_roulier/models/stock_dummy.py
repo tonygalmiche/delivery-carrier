@@ -9,14 +9,9 @@
 ##############################################################################
 from openerp import models
 
-DUMMY_CARRIER_TYPE = 'dummy'
-
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
-
-    def _dummy_is_our(self):
-        return self.carrier_id.type == DUMMY_CARRIER_TYPE
 
     def _dummy_before_call(self, package_id, request):
         request['parcel']['reference'] = (

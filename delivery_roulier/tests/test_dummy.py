@@ -61,7 +61,7 @@ class TestDummy(TransactionCase):
         if is_dummy:
             carrier = dummy_carrier
 
-        customer = self.env['res.partner'].search([], limit=1)
+        customer = self.env['res.partner'].search([], limit=3)[2]
         order = self._create_order(customer, carrier)
         self._create_order_line(order, products)
         order.action_button_confirm()
@@ -80,6 +80,8 @@ class TestDummy(TransactionCase):
         products = self._get_products([1])
         dummy_picking = self._generate_picking(products)
         other_picking = self._generate_picking(products, False)
+        package = self.env['stock.quant.package'].create({})
+        response = {'zpl': ''}
 
         # ensure we get the specific function
         # in python 2.x we can't have the decorated function
@@ -88,34 +90,29 @@ class TestDummy(TransactionCase):
         #
         # Not a real good method, but it's ok to test the returned result
 
-        # we test on _is_our wich returns true on roulier implementations
+        # test on _is_roulier which returns true on roulier implementations
         # and false on the others
 
         self.assertEqual(
-            dummy_picking._is_our(),
+            dummy_picking._is_roulier(),
             True)
 
+        # since it's defined by _roulier_is_roulier it should work
         self.assertEqual(
-            dummy_picking._is_our(),
-            dummy_picking._dummy_is_our())
+            dummy_picking._is_roulier(),
+            dummy_picking._roulier_is_roulier())
 
+        # btw is_roulier should work only on roulier' managed pickings
         self.assertNotEqual(
-            dummy_picking._is_our(),
-            dummy_picking._roulier_is_our())
+            dummy_picking._is_roulier(),
+            other_picking._is_roulier())
 
-        self.assertNotEqual(
-            dummy_picking._is_our(),
-            other_picking._is_our())
-
-        self.assertEqual(  # transitivity bro !
-            other_picking._is_our(),
-            other_picking._roulier_is_our())
-
-        # ensure we have also generic functions too
-        # both should call the same parent function
+        # test with before_call
+        # before_call is redefined in dummy
         self.assertEqual(
-            dummy_picking._get_auth(),
-            other_picking._get_auth())
+            dummy_picking._after_call(package, response),
+            dummy_picking._dummy_after_call(package, response)
+        )
 
     def test_generate_shipping_labels_no_package(self):
         """It should faily because it there is no package."""
