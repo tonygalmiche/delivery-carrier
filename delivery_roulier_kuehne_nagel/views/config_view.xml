@@ -12,7 +12,7 @@
         or
         <button string="Cancel" type="object" name="cancel" class="oe_link"/>
         <a href="https://www.coliposte.net" target="_blank">
-            <img src="delivery_carrier_label_roulier_kuehne_nagel/static/src/img/Logo_KN.jpg"/>
+            <img src="delivery_roulier_kuehne_nagel/static/src/img/Logo_KN.jpg"/>
         </a>
         <h1 style="display: inline-block">Kuehne Nagel</h1>
       </header>
