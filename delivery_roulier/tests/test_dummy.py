@@ -56,7 +56,7 @@ class TestDummy(TransactionCase):
     def _generate_picking(self, products, is_dummy=True):
         """Create a picking from products."""
         dummy_carrier = self.env.ref(
-            'delivery_carrier_label_roulier.delivery_carrier_dummy').id
+            'delivery_roulier.delivery_carrier_dummy').id
         carrier = False
         if is_dummy:
             carrier = dummy_carrier
