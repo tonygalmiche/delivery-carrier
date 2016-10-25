@@ -1,4 +1,4 @@
-from . import company
+from . import warehouse
 from . import config
 from . import directional_code
 from . import stock
