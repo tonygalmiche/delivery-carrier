@@ -92,24 +92,24 @@ class TestDummy(TransactionCase):
         # and false on the others
 
         self.assertEqual(
-            dummy_picking._is_our(),
+            dummy_picking._is_roulier(),
             True)
 
         self.assertEqual(
-            dummy_picking._is_our(),
-            dummy_picking._dummy_is_our())
+            dummy_picking._is_roulier(),
+            dummy_picking._dummy_is_roulier())
 
         self.assertNotEqual(
-            dummy_picking._is_our(),
-            dummy_picking._roulier_is_our())
+            dummy_picking._is_roulier(),
+            dummy_picking._roulier_is_roulier())
 
         self.assertNotEqual(
-            dummy_picking._is_our(),
-            other_picking._is_our())
+            dummy_picking._is_roulier(),
+            other_picking._is_roulier())
 
         self.assertEqual(  # transitivity bro !
-            other_picking._is_our(),
-            other_picking._roulier_is_our())
+            other_picking._is_roulier(),
+            other_picking._roulier_is_roulier())
 
         # ensure we have also generic functions too
         # both should call the same parent function
