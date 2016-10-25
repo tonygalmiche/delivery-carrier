@@ -53,7 +53,7 @@ class StockPicking(models.Model):
         if self.sale_id and self.sale_id.directional_code_id:
             directional_code = self.sale_id.directional_code_id
         else:
-            directional_code = self.env['directional.code']._search_directional_code(
+            directional_code = self.env['kuehne.directional.code']._search_directional_code(
                 self.company_id.country_id.id,
                 self.partner_id.country_id.id,
                 self.partner_id.zip,
