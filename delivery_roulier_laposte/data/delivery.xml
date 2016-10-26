@@ -15,8 +15,6 @@
         <field name="standard_price">0.0</field>
         <field name="cost_method">standard</field>
         <field name="type">service</field>
-        <field name="procure_method">make_to_stock</field>
-        <field name="supply_method">buy</field>
         <field name="name">Coûts de livraison - La Poste</field>
         <field name="categ_id">1</field>
     </record>
@@ -80,45 +78,6 @@
         <field name="carrier_id" ref="delivery_carrier_DOS"/>
         <field name="tmpl_option_id" ref="delivery_roulier_laposte.delivery_carrier_template_NM"/>
     </record>
-
-
-    <record id="delivery_carrier_BPR" model="delivery.carrier">
-        <field name="name">Colissimo Point Retrait Laposte</field>
-        <field name="type">laposte</field>
-        <field name="code">BPR</field>
-        <field name="use_detailed_pricelist" eval="1"/>
-        <field name="deposit_slip" eval="True"/>
-        <field name="partner_id" ref="delivery_roulier_laposte.partner_la_poste"/>
-        <field name="product_id" ref="delivery_roulier_laposte.product_product_la_poste"/>
-    </record>
-
-    <record id="BPR_laposte_delivery_carrier_template_NM" model="delivery.carrier.option">
-        <field name="readonly_flag" eval="True"/>
-        <field name="mandatory" eval="False"/>
-        <field name="by_default" eval="False"/>
-        <field name="carrier_id" ref="delivery_carrier_BPR"/>
-        <field name="tmpl_option_id" ref="delivery_roulier_laposte.delivery_carrier_template_NM"/>
-    </record>
-
-
-    <record id="delivery_carrier_A2P" model="delivery.carrier">
-        <field name="name">Colissimo Point Retrait Pickup</field>
-        <field name="type">laposte</field>
-        <field name="code">A2P</field>
-        <field name="use_detailed_pricelist" eval="1"/>
-        <field name="deposit_slip" eval="True"/>
-        <field name="partner_id" ref="delivery_roulier_laposte.partner_la_poste"/>
-        <field name="product_id" ref="delivery_roulier_laposte.product_product_la_poste"/>
-    </record>
-
-    <record id="A2P_laposte_delivery_carrier_template_NM" model="delivery.carrier.option">
-        <field name="readonly_flag" eval="True"/>
-        <field name="mandatory" eval="False"/>
-        <field name="by_default" eval="False"/>
-        <field name="carrier_id" ref="delivery_carrier_A2P"/>
-        <field name="tmpl_option_id" ref="delivery_roulier_laposte.delivery_carrier_template_NM"/>
-    </record>
-
 
     <record id="delivery_carrier_CORE" model="delivery.carrier">
         <field name="name">Colissimo Retour France</field>
@@ -209,24 +168,6 @@
         <field name="mandatory" eval="False"/>
         <field name="by_default" eval="False"/>
         <field name="carrier_id" ref="delivery_carrier_COLI"/>
-        <field name="tmpl_option_id" ref="delivery_roulier_laposte.delivery_carrier_template_NM"/>
-    </record>
-
-    <record id="delivery_carrier_CMT" model="delivery.carrier">
-        <field name="name">Colissimo Point Relais Belgique</field>
-        <field name="type">laposte</field>
-        <field name="code">CMT</field>
-        <field name="use_detailed_pricelist" eval="1"/>
-        <field name="deposit_slip" eval="True"/>
-        <field name="partner_id" ref="delivery_roulier_laposte.partner_la_poste"/>
-        <field name="product_id" ref="delivery_roulier_laposte.product_product_la_poste"/>
-    </record>
-
-    <record id="CMT_laposte_delivery_carrier_template_NM" model="delivery.carrier.option">
-        <field name="readonly_flag" eval="True"/>
-        <field name="mandatory" eval="False"/>
-        <field name="by_default" eval="False"/>
-        <field name="carrier_id" ref="delivery_carrier_CMT"/>
         <field name="tmpl_option_id" ref="delivery_roulier_laposte.delivery_carrier_template_NM"/>
     </record>
 

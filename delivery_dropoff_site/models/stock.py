@@ -3,7 +3,7 @@
 #        Sébastien BEAU <sebastien.beau@akretion.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
-from openerp import api, models, fields
+from openerp import _, api, models, fields
 
 
 class StockPicking(models.Model):
@@ -23,16 +23,18 @@ class StockPicking(models.Model):
         help='Use to facilitate display')
 
     @api.onchange('final_partner_id')
-    def onchange_partner_id(self):
+    def onchange_final_partner_id(self):
         if self.final_partner_id:
-            return {'domain': {'partner_id': [('dropoff_site', '=', True)]}}
+            return {'domain': {'partner_id': [
+                ('dropoff_site_ids', '!=', False),
+                ('dropoff_site', '=', True), ]}}
 
     @api.multi
     @api.depends('option_ids')
     def _compute_final_recipient(self):
         dropoff_site_opt = self.env.ref(
             'delivery_dropoff_site.'
-            'delivery_carrier_template_to_dropoff_site', False)
+            'delivery_carr_tmpl_to_dropoff', False)
         if not dropoff_site_opt:
             # At install process this xml data is not
             # there, so has_final_recipient field can't be computed.
@@ -60,7 +62,7 @@ class StockPicking(models.Model):
     def goto_dropoff_button(self):
         self.ensure_one()
         action = {
-            'name': 'Dropoff Site %s' % self.carrier_type,
+            'name': _('Dropoff Site %s' % self.carrier_type),
             'view_mode': 'tree,form',
             'res_model': 'partner.dropoff.site',
             'type': 'ir.actions.act_window',

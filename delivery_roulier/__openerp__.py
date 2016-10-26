@@ -13,6 +13,7 @@
         'partner_helper',
         'base_phone',
         'document',
+        'delivery_carrier_deposit',
         'delivery_carrier_b2c',
     ],
     'description': "",

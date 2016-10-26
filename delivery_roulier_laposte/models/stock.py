@@ -220,6 +220,10 @@ class StockPicking(models.Model):
                 u"au format standard a partir du menu suivant:\n"
                 u"Configuration > Technique > Telephonie > Reformate "
                 u"les numeros de telephone ",
+
+                u"Le num\xe9ro / libell\xe9 de voie de l'exp\xe9diteur n'a "
+                u"pas \xe9t\xe9 transmis":
+                u"La 2eme rue de l'emetteur du colis est vide ou invalide"
             }
             message = response.get('message')
             param_message = {'ws_exception': response['message'],

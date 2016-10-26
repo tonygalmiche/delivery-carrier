@@ -34,11 +34,6 @@
         <field name="laposte_password" password="True" class="oe_inline"/>
         <field name="laposte_support_city" placeholder="... PFC" class="oe_inline"/>
         <field name="laposte_support_city_code" placeholder="700000" class="oe_inline"/>
-            <!--<button name="button_send_image_to_printer" type="object"-->
-        <!--        string="Envoyer les images a l'imprimante"-->
-        <!--        class="oe_link" colspan="2"-->
-        <!--        confirm="S'il vous plait, confirmez que vous voulez envoyer les images a l'imprimante d'etiquette. Cela doit etre fait lors l'installation de l'imprimante ou en cas probleme. Il remplacera toutes vos images d'imprimante avec les memes noms de fichiers. (PAS ENCORE IMPLEMENTE)"-->
-        <!--        help="Cela doit etre fait pour l'installation de l'imprimante ou en cas probleme. (Informations de l'administrateur: vous devez implementer votre propre methode en fonction de la solution d'impression choisie)"/>-->
       </group>
     </form>
   </field>
