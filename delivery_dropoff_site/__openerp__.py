@@ -43,7 +43,7 @@ Contributors
     ],
     'demo': [
         'demo/demo.xml',
-        'demo/partner.dropoff.site.csv',
+        'demo/res.partner.csv',
     ],
     'license': 'AGPL-3',
     'installable': True,
