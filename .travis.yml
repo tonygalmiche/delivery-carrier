@@ -35,7 +35,7 @@ install:
   - pip install unidecode
   - pip install pycountry
   - pip install suds-jurko==0.6
-  - pip install git+https://github.com/akretion/roulier.git#develop
+  - pip install roulier.git==0.0.2-rc0
   - pip install phonenumbers
 
 script:
