@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+<!-- TODO   <data noupdate="1">-->
+<data>
+
+    <!-- DELIVERY CARRIER TEMPLATE OPTION -->
+    <record id="delivery_carrier_template_AR"
+            model="delivery.carrier.template.option">
+        <field name="name">Accusé de Réception</field>
+        <field name="code">AR</field>
+    </record>
+
+    <record id="delivery_carrier_template_FTD"
+            model="delivery.carrier.template.option">
+        <field name="name">Franc de taxes et de droits</field>
+        <field name="code">FTD</field>
+    </record>
+
+    <!-- DELIVERY CARRIER -->
+    <record id="deliv_carr_laposte_BPR" model="delivery.carrier">
+        <field name="name">Colissimo Point Retrait Laposte</field>
+        <field name="type">laposte</field>
+        <field name="code">BPR</field>
+        <field name="use_detailed_pricelist" eval="1"/>
+        <field name="deposit_slip" eval="True"/>
+        <field name="partner_id" ref="delivery_roulier_laposte.partner_la_poste"/>
+        <field name="product_id" ref="delivery_roulier_laposte.product_product_la_poste"/>
+    </record>
+
+    <record id="BPR_laposte_deliv_carr_tmpl_STDS" model="delivery.carrier.option">
+        <field name="readonly_flag" eval="True"/>
+        <field name="mandatory" eval="True"/>
+        <field name="by_default" eval="True"/>
+        <field name="carrier_id" ref="deliv_carr_laposte_BPR"/>
+        <field name="tmpl_option_id" ref="delivery_dropoff_site.delivery_carr_tmpl_to_dropoff"/>
+    </record>
+
+    <record id="BPR_laposte_deliv_carr_tmpl_NM" model="delivery.carrier.option">
+        <field name="readonly_flag" eval="True"/>
+        <field name="mandatory" eval="False"/>
+        <field name="by_default" eval="False"/>
+        <field name="carrier_id" ref="deliv_carr_laposte_BPR"/>
+        <field name="tmpl_option_id" ref="delivery_roulier_laposte.delivery_carrier_template_NM"/>
+    </record>
+
+
+    <record id="deliv_carr_laposte_A2P" model="delivery.carrier">
+        <field name="name">Colissimo Point Retrait Pickup</field>
+        <field name="type">laposte</field>
+        <field name="code">A2P</field>
+        <field name="use_detailed_pricelist" eval="1"/>
+        <field name="deposit_slip" eval="True"/>
+        <field name="partner_id" ref="delivery_roulier_laposte.partner_la_poste"/>
+        <field name="product_id" ref="delivery_roulier_laposte.product_product_la_poste"/>
+    </record>
+
+    <record id="A2P_laposte_deliv_carr_tmpl_STDS" model="delivery.carrier.option">
+        <field name="readonly_flag" eval="True"/>
+        <field name="mandatory" eval="True"/>
+        <field name="by_default" eval="True"/>
+        <field name="carrier_id" ref="deliv_carr_laposte_A2P"/>
+        <field name="tmpl_option_id" ref="delivery_dropoff_site.delivery_carr_tmpl_to_dropoff"/>
+    </record>
+
+    <record id="A2P_laposte_deliv_carr_tmpl_NM" model="delivery.carrier.option">
+        <field name="readonly_flag" eval="True"/>
+        <field name="mandatory" eval="False"/>
+        <field name="by_default" eval="False"/>
+        <field name="carrier_id" ref="deliv_carr_laposte_A2P"/>
+        <field name="tmpl_option_id" ref="delivery_roulier_laposte.delivery_carrier_template_NM"/>
+    </record>
+
+
+    <record id="deliv_carr_laposte_CMT" model="delivery.carrier">
+        <field name="name">Colissimo Point Relais Belgique</field>
+        <field name="type">laposte</field>
+        <field name="code">CMT</field>
+        <field name="use_detailed_pricelist" eval="1"/>
+        <field name="deposit_slip" eval="True"/>
+        <field name="partner_id" ref="delivery_roulier_laposte.partner_la_poste"/>
+        <field name="product_id" ref="delivery_roulier_laposte.product_product_la_poste"/>
+    </record>
+
+    <record id="CMT_laposte_deliv_carr_tmpl_STDS" model="delivery.carrier.option">
+        <field name="readonly_flag" eval="True"/>
+        <field name="mandatory" eval="True"/>
+        <field name="by_default" eval="True"/>
+        <field name="carrier_id" ref="deliv_carr_laposte_CMT"/>
+        <field name="tmpl_option_id" ref="delivery_dropoff_site.delivery_carr_tmpl_to_dropoff"/>
+    </record>
+
+    <record id="CMT_laposte_deliv_carr_tmpl_NM" model="delivery.carrier.option">
+        <field name="readonly_flag" eval="True"/>
+        <field name="mandatory" eval="False"/>
+        <field name="by_default" eval="False"/>
+        <field name="carrier_id" ref="deliv_carr_laposte_CMT"/>
+        <field name="tmpl_option_id" ref="delivery_roulier_laposte.delivery_carrier_template_NM"/>
+    </record>
+
+</data>
+</openerp>
