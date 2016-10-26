@@ -1,15 +1,19 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
+# © 2016 Raphael REVERDY <raphael.reverdy@akretion.com>
+#        David BEAL <david.beal@akretion.com>
+#        Sébastien BEAU <sebastien.beau@akretion.com>
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 {
-    'name': 'LaPoste',
-    'version': '0.3',
+    'name': 'Delivery Carrier La Poste (fr)',
+    'version': '8.0.1.0.0',
     'author': 'Akretion',
-    'summary': 'Ship with Coliposte, Colissimo, So-colissimo and so on',
+    'summary': 'Generate Label for La Poste Colissimo',
     'maintainer': 'Akretion',
     'category': 'Warehouse',
     'depends': [
-        'delivery_carrier_b2c',
         'delivery_roulier',
+        'delivery_carrier_deposit',
     ],
     'description': """
 Delivery Carrier ColiPoste
@@ -62,9 +66,6 @@ Contributors
         'demo/stock.picking.csv',
         'demo/stock.move.csv',
     ],
-    'tests': [],
     'installable': True,
-    'auto_install': False,
     'license': 'AGPL-3',
-    'application': False,
 }

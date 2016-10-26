@@ -210,23 +210,25 @@ class StockPicking(models.Model):
             # Webservice error
             # on contextualise les réponses ws aux objets Odoo
             map_responses = {
-                u"Le num\xe9ro / libell\xe9 de voie du destinataire n'a pas "
-                u"\xe9t\xe9 transmis":
-                u"La 2eme rue du client partenaire est vide ou invalide",
-
-                u"Le num\xe9ro de portable du destinataire est incorrect":
-                u"Le telephone du client ne doit comporter que des chiffres "
-                u"ou le symbole +: convertissez tous vos N° de telephone "
-                u"au format standard a partir du menu suivant:\n"
-                u"Configuration > Technique > Telephonie > Reformate "
-                u"les numeros de telephone ",
+                30204:
+                    u"La 2eme ligne d'adresse du client partenaire "
+                    u"est vide ou invalide",
+                30221:
+                    u"Le telephone du client ne doit comporter que des "
+                    u"chiffres ou le symbole +: convertissez tous vos N° de "
+                    u"telephone au format standard a partir du menu suivant:\n"
+                    u"Configuration > Technique > Telephonie > Reformate "
+                    u"les numeros de telephone ",
+                30100:
+                    u"La seconde ligne d'adresse de l'expéditeur est "
+                    u"vide ou invalide.",
             }
             message = response.get('message')
-            param_message = {'ws_exception': response['message'],
+            param_message = {'ws_exception': message,
                              'resolution': ''}
-            if message and message.get('message') in map_responses.keys():
+            if message and message.get('id') in map_responses.keys():
                 param_message['resolution'] = map_responses[
-                    message['message']]
+                    message['id']]
             ret_mess = _("Incident\n-----------\nReponse de Laposte:\n"
                          "%(ws_exception)s\n\n"
                          "Resolution\n-------------\n%(resolution)s"

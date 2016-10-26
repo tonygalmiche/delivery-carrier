@@ -31,8 +31,8 @@ class ResPartner(models.Model):
     #     domain = args
     #     if domain is None:
     #         domain = []
-    #     if not search_domain_key(domain, 'dropoff_site_id'):
-    #         domain.append(['dropoff_site_id', '=', False])
+    #     if not search_domain_key(domain, 'dropoff_site_ids'):
+    #         domain.append(['dropoff_site_ids', '=', False])
     #     return super(ResPartner, self).name_search(
     #         cr, uid, name=name, args=domain, operator=operator,
     #         context=context, limit=limit)

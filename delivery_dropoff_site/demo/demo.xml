@@ -25,7 +25,6 @@
     <!-- DELIVERY CARRIER -->
     <record id="delivery_carrier_dropoff" model="delivery.carrier">
         <field name="name">Carrier with Dropoff Site</field>
-        <!-- <field name="type">dummy</field> -->
         <field name="code">DUMMYDS</field>
         <field name="use_detailed_pricelist" eval="1"/>
         <field name="partner_id"
@@ -40,7 +39,7 @@
         <field name="by_default" eval="True"/>
         <field name="carrier_id" ref="delivery_carrier_dropoff"/>
         <field name="tmpl_option_id"
-               ref="delivery_dropoff_site.delivery_carrier_template_to_dropoff_site"/>
+               ref="delivery_dropoff_site.delivery_carr_tmpl_to_dropoff"/>
     </record>
 
 
