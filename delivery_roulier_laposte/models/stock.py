@@ -48,6 +48,7 @@ class StockPicking(models.Model):
         if response.get('url'):
             custom_response['url'] = response['url']
             custom_response['type'] = 'url'
+        package_id.parcel_tracking = response['parcelNumber']
         return custom_response
 
     def _laposte_get_shipping_date(self, package_id):
