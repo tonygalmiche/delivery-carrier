@@ -25,7 +25,7 @@ class StockPicking(models.Model):
         if self.final_partner_id:
             return {
                 'domain': {'partner_id': [
-                    ('dropoff_site_type', '=', self.carrier_type),
+                    ('dropoff_type', '=', self.carrier_type),
                     ('dropoff_site', '=', True),
                 ]}}
 
