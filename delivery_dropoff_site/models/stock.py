@@ -3,7 +3,10 @@
 #        Sébastien BEAU <sebastien.beau@akretion.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
+import logging
 from openerp import _, api, models, fields
+
+_logger = logging.getLogger(__name__)
 
 
 class StockPicking(models.Model):
@@ -35,20 +38,18 @@ class StockPicking(models.Model):
         dropoff_site_opt = self.env.ref(
             'delivery_dropoff_site.'
             'delivery_carr_tmpl_to_dropoff', False)
-        if not dropoff_site_opt:
-            # At install process this xml data is not
-            # there, so has_final_recipient field can't be computed.
-            # No problem only useful for new data.
-            return
         for rec in self:
+            # _logger.info("   >>> in _compute_final_recipient()")
             if dropoff_site_opt in [x.tmpl_option_id for x in rec.option_ids]:
                 rec.has_final_recipient = True
-                rec.final_partner_id = rec.partner_id
-                rec.partner_id = False
+                if not rec.final_partner_id:
+                    rec.final_partner_id = rec.partner_id
+                    rec.partner_id = False
             else:
                 rec.has_final_recipient = False
                 if rec.final_partner_id:
                     rec.partner_id = rec.final_partner_id
+                    rec.final_partner_id = False
 
     @api.multi
     def _check_dropoff_site_according_to_carrier(self):
