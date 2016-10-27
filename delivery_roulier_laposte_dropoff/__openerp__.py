@@ -50,10 +50,9 @@ Contributors
     'website': 'https://www.akretion.com/',
     'data': [
         'data/delivery.xml',
-        'views/partner_view.xml',
     ],
     'demo': [
-        'demo/partner.dropoff.site.csv',
+        'demo/res.partner.csv',
     ],
     'installable': True,
     'license': 'AGPL-3',

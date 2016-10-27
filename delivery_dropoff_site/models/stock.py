@@ -9,8 +9,6 @@ from openerp import _, api, models, fields
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
-    # has_final_recipient state should be changed in carrier_id_change method
-    # according to choosen delivery method
     final_partner_id = fields.Many2one(
         comodel_name='res.partner',
         string='Final Recipient',
@@ -25,9 +23,11 @@ class StockPicking(models.Model):
     @api.onchange('final_partner_id')
     def onchange_final_partner_id(self):
         if self.final_partner_id:
-            return {'domain': {'partner_id': [
-                ('dropoff_site_ids', '!=', False),
-                ('dropoff_site', '=', True), ]}}
+            return {
+                'domain': {'partner_id': [
+                    ('dropoff_type', '=', self.carrier_type),
+                    ('dropoff_site', '=', True),
+                ]}}
 
     @api.multi
     @api.depends('option_ids')
@@ -64,12 +64,12 @@ class StockPicking(models.Model):
         action = {
             'name': _('Dropoff Site %s' % self.carrier_type),
             'view_mode': 'tree,form',
-            'res_model': 'partner.dropoff.site',
+            'res_model': 'res.partner',
             'type': 'ir.actions.act_window',
             'target': 'current',
             'context': {'default_dropoff_type': self.carrier_type},
         }
-        dropoffs = self.env['partner.dropoff.site'].search(
+        dropoffs = self.env['res.partner'].search(
             [('dropoff_type', '=', self.carrier_type)])
         if dropoffs:
             dropoff_ids = [x.id for x in dropoffs]

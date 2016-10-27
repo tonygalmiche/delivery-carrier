@@ -39,14 +39,14 @@
         </field>
         <xpath expr="//page[@string='Additional Info']//field[@name='carrier_code']"
                position="after">
-            <group>
+            <!-- <group> -->
                 <!--<field name="laposte_send_douane_doc" attrs="{'invisible': True}"/>-->
                 <!-- TODO: virer colissimo ici-->
-                <!--               <field name="laposte_insur_recomm"
-                       attrs="{'readonly': [('state','=','done')], 'invisible': ['|',('carrier_type','!=','colissimo'),'&amp;', ('carrier_type','=','colissimo'),('carrier_code','not in',['7Q', '9V', 'EI'])]}"
+                <field name="laposte_insur_recomm"
+                       attrs="{'readonly': [('state','=','done')]}"
                        class="oe_inline"/>
-                       -->
-            </group>
+                      
+            <!-- </group> -->
         </xpath>
     </field>
 </record>

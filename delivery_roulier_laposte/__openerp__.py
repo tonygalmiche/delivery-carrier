@@ -30,7 +30,7 @@ Some informations have to be filled on two locations :
 * company form (Settings > Companies > Companies):
 complete address of the company, included phone
 
-* config<uration form (Settings > Configuration > Carriers > ColiPoste) :
+* configuration form (Settings > Configuration > Carriers > La Poste) :
 the default test account number is 964744
 
 

@@ -15,15 +15,33 @@ class StockPicking(models.Model):
 
     laposte_custom_category = fields.Selection(
         selection=[
-            ("1", "Gift"),
-            ("2", "Samples"),
-            ("3", "Commercial Goods"),
-            ("4", "Documents"),
-            ("5", "Other"),
-            ("6", "Goods return"),
+            ("1", _("Gift")),
+            ("2", _("Samples")),
+            ("3", _("Commercial Goods")),
+            ("4", _("Documents")),
+            ("5", _("Other")),
+            ("6", _("Goods return")),
         ],
         help="Type of sending for the customs",
         default="3")  # todo : extraire ca dans roulier_international
+    laposte_insur_recomm = fields.Selection(
+        selection=[
+            ('15000', 'Assurance 150 €'), ('30000', 'Assurance 300 €'),
+            ('45000', 'Assurance 450 €'), ('60000', 'Assurance 600 €'),
+            ('75000', 'Assurance 750 €'), ('90000', 'Assurance 900 €'),
+            ('105000', 'Assurance 1050 €'), ('120000', 'Assurance 1200 €'),
+            ('135000', 'Assurance 1350 €'), ('150000', 'Assurance 1500 €'),
+            ('R1', 'Recommendation R1'), ('R2', 'Recommendation R2'),
+            ('R3', 'Recommendation R3'),
+        ], string=u"Assurance/recommandé")
+    laposte_display_insur_recomm = fields.Boolean(
+        # compute='_compute_check_options',
+        string='Check Insurance or Recommend')
+
+    @api.one
+    @api.depends('option_ids')
+    def _compute_check_options(self):
+        ''
 
     def _laposte_before_call(self, package_id, request):
         def calc_package_price(package_id):
