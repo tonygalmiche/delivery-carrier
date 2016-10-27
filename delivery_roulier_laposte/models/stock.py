@@ -4,10 +4,14 @@
 #          Sébastien BEAU
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
+import logging
 from openerp import models, fields, api, _
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
 from datetime import datetime, timedelta
+
+
+_logger = logging.getLogger(__name__)
 
 
 class StockPicking(models.Model):
@@ -35,13 +39,22 @@ class StockPicking(models.Model):
             ('R3', 'Recommendation R3'),
         ], string=u"Assurance/recommandé")
     laposte_display_insur_recomm = fields.Boolean(
-        # compute='_compute_check_options',
-        string='Check Insurance or Recommend')
+        compute='_compute_check_options',
+        string='Display Insur. or Recomm.')
 
-    @api.one
+    @api.multi
     @api.depends('option_ids')
     def _compute_check_options(self):
-        ''
+        insur_recomm_opt = self.env.ref(
+            'delivery_roulier_laposte.'
+            'deliv_carr_tmpl_RECASS', False)
+        for rec in self:
+            if insur_recomm_opt in [x.tmpl_option_id for x in rec.option_ids]:
+                rec.laposte_display_insur_recomm = True
+            else:
+                rec.laposte_display_insur_recomm = False
+                _logger.info("   >>> in _compute_check_options() %s" %
+                             rec.laposte_display_insur_recomm)
 
     def _laposte_before_call(self, package_id, request):
         def calc_package_price(package_id):
