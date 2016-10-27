@@ -32,6 +32,29 @@
         </field>
     </record>
 
+
+    <record id="view_partner_property_form" model="ir.ui.view">
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="product.view_partner_property_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='sales_purchases4']" position="attributes">
+                <attribute name="attrs">{'invisible': [('customer', '=', False), ('supplier', '=', False), ('dropoff_site', '=', True)]}</attribute>
+            </xpath>
+        </field>
+    </record>
+
+
+    <record id="view_partner_property_form" model="ir.ui.view">
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="account.view_partner_property_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='accounting']" position="attributes">
+                <attribute name="attrs">{'invisible': [('customer', '=', False), ('supplier', '=', False), ('dropoff_site', '=', True)]}</attribute>
+            </xpath>
+        </field>
+    </record>
+
+
     <record id="action_dropoff" model="ir.actions.act_window">
         <field name="name">Dropoff Sites</field>
         <field name="res_model">res.partner</field>

@@ -26,17 +26,19 @@ class StockPicking(models.Model):
         default="3")  # todo : extraire ca dans roulier_international
     laposte_insur_recomm = fields.Selection(
         selection=[
-            ('01', '150 €'), ('02', '300 €'), ('03', '450 €'),
-            ('04', '600 €'), ('05', '750 €'), ('06', '900 €'),
-            ('07', '1050 €'), ('08', '1200 €'),
-            ('09', '1350 €'), ('10', '1500 €'),
-            ('R1', 'R1'), ('R2', 'R2'), ('R3', 'R3'),
+            ('15000', 'Assurance 150 €'), ('30000', 'Assurance 300 €'),
+            ('45000', 'Assurance 450 €'), ('60000', 'Assurance 600 €'),
+            ('75000', 'Assurance 750 €'), ('90000', 'Assurance 900 €'),
+            ('105000', 'Assurance 1050 €'), ('120000', 'Assurance 1200 €'),
+            ('135000', 'Assurance 1350 €'), ('150000', 'Assurance 1500 €'),
+            ('R1', 'Recommendation R1'), ('R2', 'Recommendation R2'),
+            ('R3', 'Recommendation R3'),
         ], string=u"Assurance/recommandé")
     laposte_display_insur_recomm = fields.Boolean(
         # compute='_compute_check_options',
         string='Check Insurance or Recommend')
 
-    @api.multi
+    @api.one
     @api.depends('option_ids')
     def _compute_check_options(self):
         ''

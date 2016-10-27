@@ -64,12 +64,12 @@ class StockPicking(models.Model):
         action = {
             'name': _('Dropoff Site %s' % self.carrier_type),
             'view_mode': 'tree,form',
-            'res_model': 'partner.dropoff.site',
+            'res_model': 'res.partner',
             'type': 'ir.actions.act_window',
             'target': 'current',
             'context': {'default_dropoff_type': self.carrier_type},
         }
-        dropoffs = self.env['partner.dropoff.site'].search(
+        dropoffs = self.env['res.partner'].search(
             [('dropoff_type', '=', self.carrier_type)])
         if dropoffs:
             dropoff_ids = [x.id for x in dropoffs]
