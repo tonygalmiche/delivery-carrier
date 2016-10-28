@@ -13,7 +13,6 @@ from openerp.exceptions import Warning as UserError
 _logger = logging.getLogger(__name__)
 try:
     from roulier import roulier
-    from roulier.exception import InvalidApiInput
 except ImportError:
     _logger.debug('Cannot `import roulier`.')
 
@@ -55,13 +54,46 @@ class StockPicking(models.Model):
     # def generate_default_label(self, package_ids=None):
     # useless method
 
+    @implemented_by_carrier
+    def _get_sender(self, picking):
+        pass
+
+    @implemented_by_carrier
+    def _get_receiver(self, picking):
+        pass
+
+    @implemented_by_carrier
+    def _get_shipping_date(self, picking):
+        pass
+
+    @implemented_by_carrier
+    def _get_options(self, picking):
+        pass
+
+    @implemented_by_carrier
+    def _get_auth(self, account):
+        pass
+
+    @implemented_by_carrier
+    def _get_service(self, picking):
+        pass
+
+    @implemented_by_carrier
+    def _convert_address(self, partner):
+        pass
+
+    @api.multi
+    def _is_roulier(self):
+        self.ensure_one()
+        return self.carrier_type in roulier.get_carriers()
+
     @api.multi
     def generate_labels(self, package_ids=None):
         """See base_delivery_carrier_label/stock.py."""
+        # entry point
         self.ensure_one()
         if self._is_roulier():
-            return self._roulier_generate_labels(
-                package_ids=package_ids)
+            return self._roulier_generate_labels()
         _super = super(StockPicking, self)
         return _super.generate_labels(package_ids=package_ids)
 
@@ -71,168 +103,68 @@ class StockPicking(models.Model):
         self.ensure_one()
 
         if self._is_roulier():
-            return self._roulier_generate_shipping_labels(
-                package_ids=package_ids)
+            raise UserError(_("Don't call me directly"))
         _super = super(StockPicking, self)
         return _super.generate_shipping_labels(package_ids=package_ids)
 
-    # end of base_label API implementation
-
-    # API
-    @implemented_by_carrier
-    def _before_call(self, package_id, request):
-        pass
-
-    @implemented_by_carrier
-    def _after_call(self, package_id, response):
-        pass
-
-    @implemented_by_carrier
-    def _is_our(self):
-        """Indicate if the current record is managed by roulier.
-
-        returns:
-            True or False
-        """
-        pass
-
-    @implemented_by_carrier
-    def _get_sender(self):
-        pass
-
-    @implemented_by_carrier
-    def _get_receiver(self):
-        pass
-
-    @implemented_by_carrier
-    def _get_shipping_date(self, package_id):
-        pass
-
-    @implemented_by_carrier
-    def _get_options(self, package_id):
-        pass
-
-    @implemented_by_carrier
-    def _get_customs(self, package_id):
-        pass
-
-    @implemented_by_carrier
-    def _should_include_customs(self, package_id):
-        pass
-
-    @implemented_by_carrier
-    def _get_auth(self, account):
-        pass
-
-    @implemented_by_carrier
-    def _get_service(self, package_id):
-        pass
-
-    @implemented_by_carrier
-    def _get_parcel(self, package_id):
-        pass
-
-    @implemented_by_carrier
-    def _convert_address(self, partner):
-        pass
-
-    @implemented_by_carrier
-    def _is_roulier(self):
-        pass
-
-    @implemented_by_carrier
-    def _error_handling(self, payload, response):
-        pass
-    # end of API
-
-    # Core functions
-
     @api.multi
-    def _roulier_generate_labels(self, package_ids=None):
-        # call generate_shipping_labels for each package
-        # collect answers from generate_shipping_labels
-        # persist it
-        self.ensure_one()
-
-        labels = self.generate_shipping_labels(package_ids)
-        for label in labels:
-            data = {
-                'name': label['name'],
-                'res_id': self.id,
-                'res_model': 'stock.picking',
-            }
-            if label.get('package_id'):
-                data['package_id'] = label['package_id']
-
-            if label.get('url'):
-                data['url'] = label['url']
-                data['type'] = 'url'
-            elif label.get('data'):
-                data['datas'] = label['data'].encode('base64')
-                data['type'] = 'binary'
-            self.env['shipping.label'].create(data)
-        return True
-
-    @api.multi
-    def _roulier_generate_shipping_labels(self, package_ids=None):
+    def _roulier_generate_labels(self):
         """Create as many labels as package_ids or in self."""
         self.ensure_one()
-        packages = []
-        if package_ids:
-            packages = package_ids
-        else:
-            packages = self._get_packages_from_picking()
+        packages = self._get_packages_from_picking()
         if not packages:
-            raise UserError(_('No package found for this picking'))
             # It's not our responsibility to create the packages
-        labels = [
-            self._call_roulier_api(package)
-            for package in packages
-        ]
-        return labels
+            raise UserError(_('No package found for this picking'))
+        return packages._generate_labels(self)
 
-    def _call_roulier_api(self, package_id):
-        """Create a label for a given package_id."""
-        # There is low chance you need to override it.
-        # Don't forget to implement _a-carrier_before_call
-        # and _a-carrier_after_call
-        self.ensure_one()
+    # default implementations
+    def _roulier_get_auth(self, package):
+        """Login/password of the carrier account.
 
-        roulier_instance = roulier.get(self.carrier_type)
-        payload = roulier_instance.api()
+        Returns:
+            a dict with login and password keys
+        """
+        auth = {
+            'login': '',
+            'password': '',
+        }
+        return auth
 
-        sender = self._get_sender()
-        receiver = self._get_receiver()
+    def _roulier_get_service(self, package):
+        shipping_date = self._get_shipping_date(package)
 
-        payload['auth'] = self._get_auth()
+        service = {
+            'product': self.carrier_code,
+            'shippingDate': shipping_date,
+        }
+        return service
 
-        payload['from_address'] = self._convert_address(sender)
-        payload['to_address'] = self._convert_address(receiver)
+    def _roulier_get_sender(self, package):
+        """Sender of the picking (for the label).
 
-        if self._should_include_customs(package_id):
-            payload['customs'] = self._get_customs(package_id)
+        Return:
+            (res.partner)
+        """
+        return self.company_id.partner_id
 
-        payload['service'] = self._get_service(package_id)
-        payload['parcel'] = self._get_parcel(package_id)
+    def _roulier_get_receiver(self, package):
+        """The guy who the shippment is for.
 
-        # sorte d'interceptor ici pour que chacun
-        # puisse ajouter ses merdes à payload
-        payload = self._before_call(package_id, payload)
-        # vrai appel a l'api
-        try:
-            ret = roulier_instance.get_label(payload)
-        except InvalidApiInput as e:
-            raise UserError(self._error_handling(payload, e.message))
-        except Exception as e:
-            raise UserError(e.message)
+        At home or at a distribution point, it's always
+        the same receiver address.
 
-        # minimum error handling
-        if ret.get('status', '') == 'error':
-            raise UserError(self._error_handling(payload, ret))
-        # give result to someone else
-        return self._after_call(package_id, ret)
+        Return:
+            (res.partner)
+        """
+        return self.partner_id
 
-    # helpers
+    def _roulier_get_shipping_date(self, package):
+        tomorrow = datetime.now() + timedelta(1)
+        return tomorrow.strftime('%Y-%m-%d')
+
+    def _roulier_get_options(self, package):
+        return {}
+
     @api.model
     def _roulier_convert_address(self, partner):
         """Convert a partner to an address for roulier.
@@ -264,82 +196,3 @@ class StockPicking(models.Model):
         # Codet ISO 3166-1-alpha-2 (2 letters code)
         address['country'] = partner.country_id.code
         return address
-
-    @api.multi
-    def _roulier_is_roulier(self):
-        self.ensure_one()
-        return self.carrier_type in roulier.get_carriers()
-
-    # default implementations
-
-    # if you want to implement your carrier behavior, don't override it,
-    # but define your own method instead with your carrier prefix.
-    # see documentation for more details about it
-    def _roulier_get_auth(self):
-        """Login/password of the carrier account.
-
-        Returns:
-            a dict with login and password keys
-        """
-        auth = {
-            'login': '',
-            'password': '',
-        }
-        return auth
-
-    def _roulier_get_service(self, package_id):
-        shipping_date = self._get_shipping_date(package_id)
-
-        service = {
-            'product': self.carrier_code,
-            'shippingDate': shipping_date,
-        }
-        return service
-
-    def _roulier_get_parcel(self, package_id):
-        weight = package_id.get_weight()
-        parcel = {
-            'weight': weight,
-        }
-        return parcel
-
-    def _roulier_get_sender(self):
-        """Sender of the picking (for the label).
-
-        Return:
-            (res.partner)
-        """
-        self.ensure_one()
-        return self.company_id.partner_id
-
-    def _roulier_get_receiver(self):
-        """The guy who the shippment is for.
-
-        At home or at a distribution point, it's always
-        the same receiver address.
-
-        Return:
-            (res.partner)
-        """
-        self.ensure_one()
-        return self.partner_id
-
-    def _roulier_get_shipping_date(self, package_id):
-        tomorrow = datetime.now() + timedelta(1)
-        return tomorrow.strftime('%Y-%m-%d')
-
-    def _roulier_get_options(self, package_id):
-        return {}
-
-    def _roulier_get_customs(self, package_id):
-        return {}
-
-    def _roulier_should_include_customs(self, package_id):
-        sender = self._get_sender()
-        receiver = self._get_receiver()
-        return sender.country_id.code == receiver.country_id.code
-
-    @api.model
-    def _roulier_error_handling(self, payload, response):
-        return _(u'Sent data:\n%s\n\nException raised:\n%s\n' % (
-            payload, self._error_handling(payload, response)))

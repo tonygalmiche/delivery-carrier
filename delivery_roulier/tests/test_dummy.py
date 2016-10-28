@@ -54,14 +54,13 @@ class TestDummy(TransactionCase):
         """Ensure tests are running."""
         self.assertEqual(False, False)
 
-    def test_implemented_by_carrier(self):
-        """It should use the specific func when appropriated."""
+    def test_is_roulier(self):
+        """It should return true when handled."""
         # we need to have weigths on product
         # because there is some get_weight on the list
+
         dummy_picking = self._generate_picking(self.products)
         other_picking = self._generate_picking(self.products, False)
-        package = self.env['stock.quant.package'].create({})
-        response = {'zpl': ''}
 
         # ensure we get the specific function
         # in python 2.x we can't have the decorated function
@@ -70,36 +69,24 @@ class TestDummy(TransactionCase):
         #
         # Not a real good method, but it's ok to test the returned result
 
-        # test on _is_roulier which returns true on roulier implementations
+        # _is_roulier which returns true on roulier implementations
         # and false on the others
 
         self.assertEqual(
             dummy_picking._is_roulier(),
             True)
 
-        # since it's defined by _roulier_is_roulier it should work
-        self.assertEqual(
-            dummy_picking._is_roulier(),
-            dummy_picking._roulier_is_roulier())
-
         # btw is_roulier should work only on roulier' managed pickings
         self.assertNotEqual(
             dummy_picking._is_roulier(),
             other_picking._is_roulier())
 
-        # test with before_call
-        # before_call is redefined in dummy
-        self.assertEqual(
-            dummy_picking._after_call(package, response),
-            dummy_picking._dummy_after_call(package, response)
-        )
-
     def test_generate_shipping_labels_no_package(self):
-        """It should faily because it there is no package."""
+        """It should fail because it there is no package."""
         picking = self._generate_picking(self.products)
 
         try:
-            labels = picking.generate_shipping_labels()
+            labels = picking.generate_labels()
         except UserError:
             self.assertTrue(True)
             return
@@ -122,7 +109,7 @@ class TestDummy(TransactionCase):
                 'result_package_id': package.id,
             }))
 
-        labels = picking.generate_shipping_labels()
+        labels = picking.generate_labels()
         self.assertEqual(len(labels), 1)
 
     def test_generate_shipping_labels_all_packages(self):
@@ -144,11 +131,11 @@ class TestDummy(TransactionCase):
             }))
 
         # dummy create one label per package
-        labels = picking.generate_shipping_labels()
+        labels = picking.generate_labels()
         self.assertEqual(len(labels), len(packages))
 
     def test_generate_shipping_labels_some_packages(self):
-        """It should use package_ids instead of self."""
+        """It should use self instead of package_ids."""
         picking = self._generate_picking(self.products)
 
         packages = [
@@ -167,8 +154,9 @@ class TestDummy(TransactionCase):
 
         # dummy create one label per package
         package_ids = [packages[0]]
-        labels = picking.generate_shipping_labels(package_ids)
-        self.assertEqual(len(labels), len(package_ids))  # =1
+
+        labels = picking.generate_labels(package_ids)
+        self.assertNotEqual(len(labels), len(package_ids))  # =1
 
     def setUp(self):
         super(TestDummy, self).setUp()
