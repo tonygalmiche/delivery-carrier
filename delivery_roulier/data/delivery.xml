@@ -38,7 +38,7 @@
     </record>
 
     <record id="carrier_opt_tmpl_FCR" model="delivery.carrier.template.option">
-        <field name="name">Eree of charges and rights</field>
+        <field name="name">Free of charges and rights</field>
         <field name="code">FCR</field>
     </record>
 
