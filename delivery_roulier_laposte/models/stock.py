@@ -17,17 +17,6 @@ _logger = logging.getLogger(__name__)
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
-    laposte_custom_category = fields.Selection(
-        selection=[
-            ("1", _("Gift")),
-            ("2", _("Samples")),
-            ("3", _("Commercial Goods")),
-            ("4", _("Documents")),
-            ("5", _("Other")),
-            ("6", _("Goods return")),
-        ],
-        help="Type of sending for the customs",
-        default="3")  # todo : extraire ca dans roulier_international
     laposte_insur_recomm = fields.Selection(
         selection=[
             ('15000', 'Assurance 150 €'), ('30000', 'Assurance 300 €'),
@@ -136,74 +125,6 @@ class StockPicking(models.Model):
             'login': self.company_id.laposte_login,
             'password': self.company_id.laposte_password
         }
-
-    @api.multi
-    def _laposte_get_customs(self, package_id):
-        """Format customs infos for each product in the package.
-
-        The decision whether to include these infos or not is
-        taken in _should_include_customs()
-
-        Returns:
-            dict.'articles' : list with qty, weight, hs_code
-            int category: gift 1, sample 2, commercial 3, ...
-        """
-        articles = []
-        for operation in package_id.get_operations():
-            article = {}
-            articles.append(article)
-            product = operation.product_id
-            # stands for harmonized_system
-            hs = product.product_tmpl_id.get_hs_code_recursively()
-
-            article['quantity'] = '%.f' % operation.product_qty
-            article['weight'] = (
-                operation.get_weight() / operation.product_qty)
-            article['originCountry'] = product.origin_country_id.code
-            article['description'] = hs.description
-            article['hs'] = hs.hs_code
-            article['value'] = product.list_price  # unit price is expected
-            # todo : extraire ca dans roulier_international
-
-        category = self.laposte_custom_category
-        return {
-            "articles": articles,
-            "category": category,
-        }
-
-    @api.multi
-    def _laposte_should_include_customs(self, package_id):
-        """Choose if customs infos should be included in the WS call.
-
-        Return bool
-        """
-        # Customs declaration (cn23) is needed when :
-        # dest is not in UE
-        # dest is attached territory (like Groenland, Canaries)
-        # dest is is Outre-mer
-        #
-        # see https://boutique.laposte.fr/_ui/doc/formalites_douane.pdf
-        # Return true when not in metropole.
-        international_products = (
-            'COM', 'CDS',  # outre mer
-            'COLI', 'CORI',  # colissimo international
-            'BOM', 'BDP', 'BOS', 'CMT',  # So Colissimo international
-        )
-        return self.carrier_code.upper() in international_products
-
-    # voir pour y mettre en champ calcule ?
-    @api.multi
-    def _laposte_get_parcel_tracking(self):
-        """Get the list of tracking numbers.
-
-        Each package may have his own tracking number
-        returns:
-            list of string
-        """
-        self.ensure_one()
-        return [pack.parcel_tracking
-                for pack in self._get_packages_from_picking()
-                if pack.parcel_tracking]
 
     # helpers
     @api.model

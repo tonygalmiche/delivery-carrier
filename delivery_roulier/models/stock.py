@@ -54,20 +54,32 @@ class StockPicking(models.Model):
     # def generate_default_label(self, package_ids=None):
     # useless method
 
+    customs_category = fields.Selection(
+        selection=[
+            ('gift', _("Gift")),
+            ('sample', _("Samples")),
+            ('commercial', _("Commercial Goods")),
+            ('document', _("Documents")),
+            ('other', _("Other")),
+            ('return', _("Goods return")),
+        ],
+        default='commercial',
+        help="Type of sending for the customs")
+
     @implemented_by_carrier
-    def _get_sender(self, picking):
+    def _get_sender(self, package):
         pass
 
     @implemented_by_carrier
-    def _get_receiver(self, picking):
+    def _get_receiver(self, package):
         pass
 
     @implemented_by_carrier
-    def _get_shipping_date(self, picking):
+    def _get_shipping_date(self, package):
         pass
 
     @implemented_by_carrier
-    def _get_options(self, picking):
+    def _get_options(self, package):
         pass
 
     @implemented_by_carrier
@@ -75,7 +87,7 @@ class StockPicking(models.Model):
         pass
 
     @implemented_by_carrier
-    def _get_service(self, picking):
+    def _get_service(self, package):
         pass
 
     @implemented_by_carrier
