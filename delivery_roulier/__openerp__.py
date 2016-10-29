@@ -13,6 +13,7 @@
         'partner_helper',
         'base_phone',
         'document',
+        'intrastat_product',
         'delivery_carrier_b2c',
     ],
     'description': "",
