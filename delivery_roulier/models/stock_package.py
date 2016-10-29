@@ -81,7 +81,6 @@ class StockQuantPackage(models.Model):
         ret = []
         for package in self:
             labels = package._call_roulier_api(picking)
-
             for label in labels:
                 data = {
                     'name': label['name'],
@@ -119,7 +118,6 @@ class StockQuantPackage(models.Model):
 
         payload['from_address'] = picking._convert_address(sender)
         payload['to_address'] = picking._convert_address(receiver)
-
         if self._should_include_customs(picking):
             payload['customs'] = self._get_customs(picking)
 
@@ -163,4 +161,4 @@ class StockQuantPackage(models.Model):
     @api.model
     def _roulier_error_handling(self, payload, response):
         return _(u'Sent data:\n%s\n\nException raised:\n%s\n' % (
-            payload, self._error_handling(payload, response)))
+            payload, response))

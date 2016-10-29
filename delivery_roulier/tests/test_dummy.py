@@ -108,8 +108,8 @@ class TestDummy(TransactionCase):
                 'product_uom_id': product.uom_id.id,
                 'result_package_id': package.id,
             }))
-
-        labels = picking.generate_labels()
+        packages = picking._get_packages_from_picking()
+        labels = packages._generate_labels(picking)
         self.assertEqual(len(labels), 1)
 
     def test_generate_shipping_labels_all_packages(self):
