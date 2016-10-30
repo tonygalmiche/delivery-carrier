@@ -50,7 +50,7 @@ class StockQuantPackage(models.Model):
 
     # API
     @implemented_by_carrier
-    def _before_call(self, picking, request):
+    def _before_call(self, picking, payload):
         pass
 
     @implemented_by_carrier
@@ -72,6 +72,7 @@ class StockQuantPackage(models.Model):
     @implemented_by_carrier
     def _error_handling(self, payload, response):
         pass
+
     # end of API
 
     # Core functions
@@ -81,6 +82,8 @@ class StockQuantPackage(models.Model):
         ret = []
         for package in self:
             labels = package._call_roulier_api(picking)
+            if isinstance(labels, dict):
+                labels = [labels]
             for label in labels:
                 data = {
                     'name': label['name'],

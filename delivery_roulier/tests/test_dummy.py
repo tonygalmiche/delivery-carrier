@@ -7,6 +7,12 @@ from openerp.exceptions import Warning as UserError
 class TestDummy(TransactionCase):
     """Test dumy functions."""
 
+    def setUp(self):
+        super(TestDummy, self).setUp()
+        self.products = self.env.ref('delivery_roulier.product_dummy_small')
+        self.products |= self.env.ref('delivery_roulier.product_dummy_normal')
+        self.products |= self.env.ref('delivery_roulier.product_dummy_big')
+
     # some helpers
     def _create_sale(self, customer, carrier=None):
         vals = {
@@ -82,7 +88,7 @@ class TestDummy(TransactionCase):
             other_picking._is_roulier())
 
     def test_generate_shipping_labels_no_package(self):
-        """It should fail because it there is no package."""
+        """It should fail because there is no package."""
         picking = self._generate_picking(self.products)
 
         try:
@@ -96,7 +102,7 @@ class TestDummy(TransactionCase):
         return True
 
     def test_generate_shipping_labels_one_package_explicit(self):
-        """It should create 1 label if there is 1 packages."""
+        """It should create 1 label if there is 1 package."""
         picking = self._generate_picking(self.products)
         package = self.env['stock.quant.package'].create({})
 
@@ -157,9 +163,3 @@ class TestDummy(TransactionCase):
 
         labels = picking.generate_labels(package_ids)
         self.assertNotEqual(len(labels), len(package_ids))  # =1
-
-    def setUp(self):
-        super(TestDummy, self).setUp()
-        self.products = self.env.ref('delivery_roulier.product_dummy_small')
-        self.products |= self.env.ref('delivery_roulier.product_dummy_normal')
-        self.products |= self.env.ref('delivery_roulier.product_dummy_big')

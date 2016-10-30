@@ -26,7 +26,6 @@
         <field name="type">dummy</field>
         <field name="code">DUMMY</field>
         <field name="use_detailed_pricelist" eval="1"/>
-        <field name="deposit_slip" eval="False"/>
         <field name="partner_id" ref="delivery_roulier.partner_dummy"/>
         <field name="product_id" ref="delivery_roulier.product_product_dummy"/>
     </record>
