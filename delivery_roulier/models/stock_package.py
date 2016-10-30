@@ -50,7 +50,7 @@ class StockQuantPackage(models.Model):
 
     # API
     @implemented_by_carrier
-    def _before_call(self, picking, request):
+    def _before_call(self, picking, payload):
         pass
 
     @implemented_by_carrier
@@ -72,6 +72,7 @@ class StockQuantPackage(models.Model):
     @implemented_by_carrier
     def _error_handling(self, payload, response):
         pass
+
     # end of API
 
     # Core functions
@@ -81,7 +82,8 @@ class StockQuantPackage(models.Model):
         ret = []
         for package in self:
             labels = package._call_roulier_api(picking)
-
+            if isinstance(labels, dict):
+                labels = [labels]
             for label in labels:
                 data = {
                     'name': label['name'],
@@ -119,7 +121,6 @@ class StockQuantPackage(models.Model):
 
         payload['from_address'] = picking._convert_address(sender)
         payload['to_address'] = picking._convert_address(receiver)
-
         if self._should_include_customs(picking):
             payload['customs'] = self._get_customs(picking)
 
@@ -153,14 +154,43 @@ class StockQuantPackage(models.Model):
         return parcel
 
     def _roulier_get_customs(self, picking):
-        return {}
+        """Format customs infos for each product in the package.
+
+        The decision whether to include these infos or not is
+        taken in _should_include_customs()
+
+        Returns:
+            dict.'articles' : list with qty, weight, hs_code
+            int category: gift 1, sample 2, commercial 3, ...
+        """
+        articles = []
+        for operation in self.get_operations():
+            article = {}
+            articles.append(article)
+            product = operation.product_id
+            # stands for harmonized_system
+            hs = product.product_tmpl_id.get_hs_code_recursively()
+
+            article['quantity'] = '%.f' % operation.product_qty
+            article['weight'] = (
+                operation.get_weight() / operation.product_qty)
+            article['originCountry'] = product.origin_country_id.code
+            article['description'] = hs.description
+            article['hs'] = hs.hs_code
+            article['value'] = product.list_price  # unit price is expected
+
+        category = picking.customs_category
+        return {
+            "articles": articles,
+            "category": category,
+        }
 
     def _roulier_should_include_customs(self, picking):
         sender = picking._get_sender(self)
         receiver = picking._get_receiver(self)
-        return sender.country_id.code == receiver.country_id.code
+        return sender.country_id.code != receiver.country_id.code
 
     @api.model
     def _roulier_error_handling(self, payload, response):
         return _(u'Sent data:\n%s\n\nException raised:\n%s\n' % (
-            payload, self._error_handling(payload, response)))
+            payload, response))

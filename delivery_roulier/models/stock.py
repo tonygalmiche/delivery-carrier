@@ -54,28 +54,57 @@ class StockPicking(models.Model):
     # def generate_default_label(self, package_ids=None):
     # useless method
 
+    customs_category = fields.Selection(
+        selection=[
+            ('gift', _("Gift")),
+            ('sample', _("Samples")),
+            ('commercial', _("Commercial Goods")),
+            ('document', _("Documents")),
+            ('other', _("Other")),
+            ('return', _("Goods return")),
+        ],
+        default='commercial',
+        help="Type of sending for the customs")
+    display_insurance = fields.Boolean(
+        compute='_compute_check_options',
+        string="Define a condition to display/hide your custom Insurance"
+               "field with a decated view")
+
+    @api.multi
+    @api.depends('option_ids')
+    def _compute_check_options(self):
+        insurance_opt = self.env.ref(
+            'delivery_roulier.carrier_opt_tmpl_INS', False)
+        for rec in self:
+            if insurance_opt in [x.tmpl_option_id for x in rec.option_ids]:
+                rec.display_insurance = True
+            else:
+                rec.display_insurance = False
+                _logger.info("   >>> in _compute_check_options() %s" %
+                             rec.display_insurance)
+
     @implemented_by_carrier
-    def _get_sender(self, picking):
+    def _get_sender(self, package):
         pass
 
     @implemented_by_carrier
-    def _get_receiver(self, picking):
+    def _get_receiver(self, package):
         pass
 
     @implemented_by_carrier
-    def _get_shipping_date(self, picking):
+    def _get_shipping_date(self, package):
         pass
 
     @implemented_by_carrier
-    def _get_options(self, picking):
+    def _get_options(self, package):
         pass
 
     @implemented_by_carrier
-    def _get_auth(self, account):
+    def _get_auth(self, package):
         pass
 
     @implemented_by_carrier
-    def _get_service(self, picking):
+    def _get_service(self, package):
         pass
 
     @implemented_by_carrier
