@@ -47,6 +47,28 @@
         <field name="carrier_id" ref="delivery_carrier_DOM"/>
         <field name="tmpl_option_id" ref="delivery_roulier_laposte.carrier_opt_tmpl_NM"/>
     </record>
+    <record id="DOM_laposte_carrier_opt_tmpl_FCR"
+            model="delivery.carrier.option">
+        <field name="readonly_flag" eval="True"/>
+        <field name="mandatory" eval="False"/>
+        <field name="by_default" eval="False"/>
+        <field name="carrier_id" ref="delivery_carrier_DOM"/>
+        <field name="tmpl_option_id" ref="delivery_roulier.carrier_opt_tmpl_FCR"/>
+    </record>
+    <record id="DOM_laposte_carrier_opt_tmpl_COD" model="delivery.carrier.option">
+        <field name="readonly_flag" eval="True"/>
+        <field name="mandatory" eval="False"/>
+        <field name="by_default" eval="False"/>
+        <field name="carrier_id" ref="delivery_carrier_DOM"/>
+        <field name="tmpl_option_id" ref="delivery_roulier.carrier_opt_tmpl_COD"/>
+    </record>
+    <record id="DOM_laposte_carrier_opt_tmpl_INS" model="delivery.carrier.option">
+        <field name="readonly_flag" eval="True"/>
+        <field name="mandatory" eval="False"/>
+        <field name="by_default" eval="False"/>
+        <field name="carrier_id" ref="delivery_carrier_DOM"/>
+        <field name="tmpl_option_id" ref="delivery_roulier.carrier_opt_tmpl_INS"/>
+    </record>
 
     <record id="delivery_carrier_DOS" model="delivery.carrier">
         <field name="name">Colissimo Domicile avec signature</field>

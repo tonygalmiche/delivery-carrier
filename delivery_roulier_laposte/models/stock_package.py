@@ -4,7 +4,7 @@
 #          Sébastien BEAU
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
-from openerp import api, models
+from openerp import _, api, models
 
 CUSTOMS_MAP = {
     'gift': 1,
@@ -78,3 +78,47 @@ class StockQuantPackage(models.Model):
             'BOM', 'BDP', 'BOS', 'CMT',  # So Colissimo international
         )
         return picking.carrier_code.upper() in international_products
+
+    @api.model
+    def _laposte_error_handling(self, payload, response):
+        payload['auth']['password'] = '****'
+        ret_mess = u'Données transmises:\n%s\n\nExceptions levées%s\n%s'
+        if response.get('api_call_exception'):
+            # InvalidInputException
+            # on met des clés plus explicites vis à vis des objets odoo
+            suffix = (u"\nSignification des clés dans le contexte Odoo:\n"
+                      u"- 'to_address' correspond à 'adresse client'\n"
+                      u"- 'from_address' correspond à 'adresse de la société'")
+            message = u'Données transmises:\n%s\n\nExceptions levées%s\n%s' % (
+                payload, response, suffix)
+            return message
+        elif response.get('message'):
+            # Webservice error
+            # on contextualise les réponses ws aux objets Odoo
+            map_responses = {
+                30204:
+                    u"La 2eme ligne d'adresse du client partenaire "
+                    u"est vide ou invalide",
+                30221:
+                    u"Le telephone du client ne doit comporter que des "
+                    u"chiffres ou le symbole +: convertissez tous vos N° de "
+                    u"telephone au format standard a partir du menu suivant:\n"
+                    u"Configuration > Technique > Telephonie > Reformate "
+                    u"les numeros de telephone ",
+                30100:
+                    u"La seconde ligne d'adresse de l'expéditeur est "
+                    u"vide ou invalide.",
+            }
+            message = response.get('message')
+            param_message = {'ws_exception': message,
+                             'sent_data': payload,
+                             'resolution': ''}
+            if message and message.get('id') in map_responses.keys():
+                param_message['resolution'] = map_responses[
+                    message['id']]
+            ret_mess = _(u"Incident\n-----------\nRéponse de Laposte:\n"
+                         u"%(ws_exception)s\n\nDonnées transmises:"
+                         u"\n%(sent_data)s\n\n"
+                         u"Résolution\n-------------\n%(resolution)s"
+                         % param_message)
+        return ret_mess
