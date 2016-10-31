@@ -46,8 +46,17 @@ class StockPicking(models.Model):
 
         return shipping_date.strftime('%Y-%m-%d')
 
+    @api.model
+    def _laposte_map_options(self):
+        return {
+            'NM': 'nonMachinable',
+            'FCR': 'ftd',
+            'COD': 'COD',
+            'INS': 'insuranceValue',
+        }
+
     @api.multi
-    def _laposte_get_options(self):
+    def _laposte_get_options(self, package):
         """Define options for the shippment.
 
         Like insurance, cash on delivery...
@@ -57,17 +66,15 @@ class StockPicking(models.Model):
         # should be extracted from a company wide setting
         # and oversetted in a view form
         self.ensure_one()
-        mapping_options = {
-            'NM': 'nonMachinable',
-        }
-        options = {}
-        if self.option_ids:
-            for opt in self.option_ids:
-                opt_key = str(opt.tmpl_option_id['code'])
-                if opt_key in mapping_options:
-                    options[mapping_options[opt_key]] = True
-                else:
-                    options[opt_key] = True
+        options = self._roulier_get_options(package)
+        if 'insuranceValue' in options:
+            if self.laposte_insur_recomm[:1] == 'R':
+                options['recommendationLevel'] = self.laposte_insur_recomm
+                del options['insuranceValue']
+            else:
+                options['insuranceValue'] = self.laposte_insur_recomm
+        if 'cod' in options:
+            options['codAmount'] = 0
         return options
 
     @api.multi
