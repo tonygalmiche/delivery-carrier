@@ -49,12 +49,18 @@ class StockQuantPackage(models.Model):
     _inherit = 'stock.quant.package'
 
     # API
+    # Each method in this class have at least picking arg to directly
+    # deal with stock.picking if required by your carrier use case
     @implemented_by_carrier
     def _before_call(self, picking, payload):
         pass
 
     @implemented_by_carrier
     def _after_call(self, picking, response):
+        pass
+
+    @implemented_by_carrier
+    def _get_cash_on_delivery(self, picking):
         pass
 
     @implemented_by_carrier
@@ -127,11 +133,10 @@ class StockQuantPackage(models.Model):
         payload['service'] = picking._get_service(self)
         payload['parcel'] = self._get_parcel(picking)
 
-        # sorte d'interceptor ici pour que chacun
-        # puisse ajouter ses merdes à payload
+        # hook to override request / payload
         payload = self._before_call(picking, payload)
-        # vrai appel a l'api
         try:
+            # api call
             ret = roulier_instance.get_label(payload)
         except InvalidApiInput as e:
             raise UserError(self._error_handling(payload, e.message))
@@ -152,6 +157,15 @@ class StockQuantPackage(models.Model):
             'weight': weight,
         }
         return parcel
+
+    def _roulier_get_cash_on_delivery(self, picking):
+        """ called by 'cod' option
+        """
+        # TODO improve to take account Sale if picking created from sale
+        amount = 0
+        for oper in self.get_operations():
+            amount += oper.product_id.list_price * oper.product_qty
+        return amount
 
     def _roulier_get_customs(self, picking):
         """Format customs infos for each product in the package.

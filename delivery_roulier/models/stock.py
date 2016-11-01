@@ -96,6 +96,10 @@ class StockPicking(models.Model):
         pass
 
     @implemented_by_carrier
+    def _map_options(self):
+        pass
+
+    @implemented_by_carrier
     def _get_options(self, package):
         pass
 
@@ -191,8 +195,28 @@ class StockPicking(models.Model):
         tomorrow = datetime.now() + timedelta(1)
         return tomorrow.strftime('%Y-%m-%d')
 
-    def _roulier_get_options(self, package):
+    @api.model
+    def _roulier_map_options(self):
+        """ Customize this mapping with your own carrier as this example:
+            return {
+                'FCR': 'fcr',
+                'COD': 'cod',
+                'INS': 'ins',
+            }
+        """
         return {}
+
+    def _roulier_get_options(self, package):
+        mapping_options = self._map_options()
+        options = {}
+        if self.option_ids:
+            for opt in self.option_ids:
+                opt_key = str(opt.tmpl_option_id['code'])
+                if opt_key in mapping_options:
+                    options[mapping_options[opt_key]] = True
+                else:
+                    options[opt_key] = True
+        return options
 
     @api.model
     def _roulier_convert_address(self, partner):
