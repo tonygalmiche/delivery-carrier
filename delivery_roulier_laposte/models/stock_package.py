@@ -86,9 +86,10 @@ class StockQuantPackage(models.Model):
         if response.get('api_call_exception'):
             # InvalidInputException
             # on met des clés plus explicites vis à vis des objets odoo
-            suffix = (u"\nSignification des clés dans le contexte Odoo:\n"
-                      u"- 'to_address' correspond à 'adresse client'\n"
-                      u"- 'from_address' correspond à 'adresse de la société'")
+            suffix = (
+                u"\nSignification des clés dans le contexte Odoo:\n"
+                u"- 'to_address' : adresse du destinataire (votre client)\n"
+                u"- 'from_address' : adresse de l'expéditeur (vous)")
             message = u'Données transmises:\n%s\n\nExceptions levées%s\n%s' % (
                 payload, response, suffix)
             return message
