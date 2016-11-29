@@ -5,6 +5,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 from openerp import _, api, models
+from roulier.carriers.laposte.laposte_transport import LAPOSTE_WS
 
 CUSTOMS_MAP = {
     'gift': 1,
@@ -116,10 +117,11 @@ class StockQuantPackage(models.Model):
                     request[request.index('</password>'):])
             for message in response.get('messages'):
                 parts.append(self.format_one_exception(message, map_responses))
+
             ret_mess = _(u"Incident\n-----------\n%s\n"
                          u"Données transmises:\n"
-                         u"-----------------------------\n%s") % (
-                u'\n'.join(parts), request.decode('utf-8'))
+                         u"-----------------------------\n%s\n\nWS: %s") % (
+                u'\n'.join(parts), request.decode('utf-8'), LAPOSTE_WS)
         return ret_mess
 
     @api.model
