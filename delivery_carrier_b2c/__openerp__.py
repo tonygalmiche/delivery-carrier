@@ -21,7 +21,7 @@
 
 {
     'name': 'Delivery Carrier Business To Customer',
-    'version': '8.0.0.2.0',
+    'version': '9.0.0.2.0',
     'author': "Akretion,Odoo Community Association (OCA)",
     'maintainer': 'Akretion',
     'category': '',
@@ -52,7 +52,7 @@ Contributors
         'partner_view.xml',
     ],
     'tests': [],
-    'installable': False,
+    'installable': True,
     'auto_install': False,
     'license': 'AGPL-3',
     'application': False,
