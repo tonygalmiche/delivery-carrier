@@ -5,6 +5,14 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 from openerp import _, api, models
+import logging
+
+_logger = logging.getLogger(__name__)
+try:
+    from roulier.carriers.laposte.laposte_transport import LAPOSTE_WS
+except ImportError as err:
+    _logger.debug(err)
+
 
 CUSTOMS_MAP = {
     'gift': 1,
@@ -36,7 +44,6 @@ class StockQuantPackage(models.Model):
         )
         request['service']['transportationAmount'] = 10  # how to set this ?
         request['service']['returnTypeChoice'] = 3  # do not return to sender
-        request['to_address']['phone'] = '+33667228689'
         return request
 
     def _laposte_after_call(self, picking, response):
@@ -45,11 +52,25 @@ class StockQuantPackage(models.Model):
             'name': response['parcelNumber'],
             'data': response.get('label'),
         }
-        if response.get('url'):
-            custom_response['url'] = response['url']
-            custom_response['type'] = 'url'
+        if response.get('cn23'):
+            custom_response['annex'] = {'cn23': response['cn23']}
         self.parcel_tracking = response['parcelNumber']
         return custom_response
+
+    @api.model
+    def _laposte_prepare_label(self, picking, label):
+        data = super(StockQuantPackage, self)._roulier_prepare_label(
+            picking, label)
+        if label.get('annex').get('cn23'):
+            cn23 = {
+                'name': 'cn23_%s.pdf' % label['name'],
+                'res_id': picking.id,
+                'res_model': 'stock.picking',
+                'datas': label['annex']['cn23'].encode('base64'),
+                'type': 'binary'
+            }
+            self.env['ir.attachment'].create(cn23)
+        return data
 
     @api.multi
     def _laposte_get_customs(self, picking):
@@ -118,10 +139,11 @@ class StockQuantPackage(models.Model):
                     request[request.index('</password>'):])
             for message in response.get('messages'):
                 parts.append(self.format_one_exception(message, map_responses))
+
             ret_mess = _(u"Incident\n-----------\n%s\n"
                          u"Données transmises:\n"
-                         u"-----------------------------\n%s") % (
-                u'\n'.join(parts), request.decode('utf-8'))
+                         u"-----------------------------\n%s\n\nWS: %s") % (
+                u'\n'.join(parts), request.decode('utf-8'), LAPOSTE_WS)
         return ret_mess
 
     @api.model
