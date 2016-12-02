@@ -110,11 +110,11 @@
         <field name="carrier_id" ref="delivery_carrier_CORE"/>
         <field name="tmpl_option_id" ref="delivery_roulier_laposte.carrier_opt_tmpl_NM"/>
     </record>
-    <record id="DOS_laposte_carrier_opt_tmpl_INS" model="delivery.carrier.option">
+    <record id="CORE_laposte_carrier_opt_tmpl_INS" model="delivery.carrier.option">
         <field name="readonly_flag" eval="True"/>
         <field name="mandatory" eval="False"/>
         <field name="by_default" eval="False"/>
-        <field name="carrier_id" ref="delivery_carrier_DOS"/>
+        <field name="carrier_id" ref="delivery_carrier_CORE"/>
         <field name="tmpl_option_id" ref="delivery_roulier.carrier_opt_tmpl_INS"/>
         <!-- Pas de niveau de recommandation possible: seulement assurance -->
     </record>
