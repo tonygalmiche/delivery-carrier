@@ -5,7 +5,14 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 from openerp import _, api, models
-from roulier.carriers.laposte.laposte_transport import LAPOSTE_WS
+import logging
+
+_logger = logging.getLogger(__name__)
+try:
+    from roulier.carriers.laposte.laposte_transport import LAPOSTE_WS
+except ImportError as err:
+    _logger.debug(err)
+
 
 CUSTOMS_MAP = {
     'gift': 1,
@@ -44,11 +51,25 @@ class StockQuantPackage(models.Model):
             'name': response['parcelNumber'],
             'data': response.get('label'),
         }
-        if response.get('url'):
-            custom_response['url'] = response['url']
-            custom_response['type'] = 'url'
+        if response.get('cn23'):
+            custom_response['annex'] = {'cn23': response['cn23']}
         self.parcel_tracking = response['parcelNumber']
         return custom_response
+
+    @api.model
+    def _laposte_prepare_label(self, picking, label):
+        data = super(StockQuantPackage, self)._roulier_prepare_label(
+            picking, label)
+        if label.get('annex').get('cn23'):
+            cn23 = {
+                'name': 'cn23_%s.pdf' % label['name'],
+                'res_id': picking.id,
+                'res_model': 'stock.picking',
+                'datas': label['annex']['cn23'].encode('base64'),
+                'type': 'binary'
+            }
+            self.env['ir.attachment'].create(cn23)
+        return data
 
     @api.multi
     def _laposte_get_customs(self, picking):
