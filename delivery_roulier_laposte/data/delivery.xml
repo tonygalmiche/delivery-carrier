@@ -3,16 +3,6 @@
 <!--    <data noupdate="1">-->
 <data>
 
-    <!-- PRODUCT  -->
-    <record id="product_product_la_poste" model="product.product">
-        <field name="default_code">SHIP_LP</field>
-        <field name="standard_price">0.0</field>
-        <field name="cost_method">standard</field>
-        <field name="type">service</field>
-        <field name="name">Coûts de livraison - La Poste</field>
-        <field name="categ_id">1</field>
-    </record>
-
     <!-- PARTNER -->
     <record id="partner_la_poste" model="res.partner">
         <field name="name">La Poste</field>
@@ -35,7 +25,7 @@
         <field name="name">Colissimo Domicile</field>
         <field name="default_code">DOM</field>
         <field name="code">DOM</field>
-        <field name="type">service</field>
+        <field name="carrier_type">laposte</field>
         <field name="use_detailed_pricelist" eval="1"/>
         <field name="deposit_slip" eval="True"/>
         <field name="partner_id" ref="delivery_roulier_laposte.partner_la_poste"/>
@@ -74,7 +64,7 @@
     <record id="delivery_carrier_DOS" model="delivery.carrier">
         <field name="name">Colissimo Domicile avec signature</field>
         <field name="default_code">DOS</field>
-        <field name="type">service</field>
+        <field name="carrier_type">laposte</field>
         <field name="code">DOS</field>
         <field name="use_detailed_pricelist" eval="1"/>
         <field name="deposit_slip" eval="True"/>
@@ -120,7 +110,7 @@
 
     <record id="delivery_carrier_CORE" model="delivery.carrier">
         <field name="name">Colissimo Retour France</field>
-        <field name="type">service</field>
+        <field name="carrier_type">laposte</field>
         <field name="code">CORE</field>
         <field name="default_code">CORE</field>
         <field name="use_detailed_pricelist" eval="1"/>
@@ -139,13 +129,12 @@
 
     <record id="delivery_carrier_CORI" model="delivery.carrier">
         <field name="name">Colissimo Retour International</field>
-        <field name="type">service</field>
+        <field name="carrier_type">laposte</field>
         <field name="code">CORI</field>
         <field name="default_code">CORI</field>
         <field name="use_detailed_pricelist" eval="1"/>
         <field name="deposit_slip" eval="True"/>
         <field name="partner_id" ref="delivery_roulier_laposte.partner_la_poste"/>
-        <field name="product_id" ref="delivery_roulier_laposte.product_product_la_poste"/>
     </record>
     <record id="CORI_laposte_carrier_opt_tmpl_NM" model="delivery.carrier.option">
         <field name="readonly_flag" eval="True"/>
@@ -158,7 +147,7 @@
 
     <record id="delivery_carrier_COM" model="delivery.carrier">
         <field name="name">Colissimo Domicile Outre-Mer</field>
-        <field name="type">service</field>
+        <field name="carrier_type">laposte</field>
         <field name="code">COM</field>
         <field name="default_code">COM</field>
         <field name="use_detailed_pricelist" eval="1"/>
@@ -192,7 +181,7 @@
 
     <record id="delivery_carrier_CDS" model="delivery.carrier">
         <field name="name">Colissimo Domicile Outre-Mer avec signature</field>
-        <field name="type">service</field>
+        <field name="carrier_type">laposte</field>
         <field name="code">CDS</field>
         <field name="default_code">CDS</field>
         <field name="use_detailed_pricelist" eval="1"/>
@@ -240,7 +229,7 @@
 
     <record id="delivery_carrier_COLI" model="delivery.carrier">
         <field name="name">Colissimo Expert International</field>
-        <field name="type">service</field>
+        <field name="carrier_type">laposte</field>
         <field name="code">COLI</field>
         <field name="default_code">COLI</field>
         <field name="use_detailed_pricelist" eval="1"/>
