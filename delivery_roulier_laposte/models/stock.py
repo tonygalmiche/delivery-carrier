@@ -77,25 +77,6 @@ class StockPicking(models.Model):
             options['codAmount'] = 0
         return options
 
-    @api.multi
-    def _laposte_get_auth(self, package):
-        """Fetch a laposte login/password.
-
-        Currently it's global for the company.
-        TODO:
-            * allow multiple accounts
-            * store the password securely
-            * inject it via ENVIRONMENT variable
-        """
-        self.ensure_one()
-        accounts = self.env['keychain.account'].search(
-            [['namespace', '=', 'roulier_laposte']])
-        account = accounts[0]
-        return {
-            'login': account.login,
-            'password': account.get_password()
-        }
-
     # helpers
     @api.model
     def _laposte_convert_address(self, partner):
