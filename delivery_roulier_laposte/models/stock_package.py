@@ -9,7 +9,8 @@ import logging
 
 _logger = logging.getLogger(__name__)
 try:
-    from roulier.carriers.laposte.laposte_transport import LAPOSTE_WS
+    from roulier.carriers.laposte.laposte_transport import LaposteTransport
+    LAPOSTE_WS = LaposteTransport.LAPOSTE_WS
 except ImportError as err:
     _logger.debug(err)
 
@@ -60,7 +61,7 @@ class StockQuantPackage(models.Model):
     def _laposte_prepare_label(self, picking, label):
         data = super(StockQuantPackage, self)._roulier_prepare_label(
             picking, label)
-        if label.get('annex').get('cn23'):
+        if label.get('annex') and label['annex'].get('cn23'):
             cn23 = {
                 'name': 'cn23_%s.pdf' % label['name'],
                 'res_id': picking.id,
