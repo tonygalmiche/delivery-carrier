@@ -7,7 +7,7 @@
         <field name="default_code">SHIP_DUMMY</field>
         <field name="type">service</field>
         <field name="name">Test only - DUMMY</field>
-        <field name="categ_id">1</field>
+        <field name="categ_id" eval="1"/>
     </record>
 
     <!-- PARTNER -->

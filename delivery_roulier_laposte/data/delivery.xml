@@ -10,7 +10,7 @@
         <field name="cost_method">standard</field>
         <field name="type">service</field>
         <field name="name">Coûts de livraison - La Poste</field>
-        <field name="categ_id">1</field>
+        <field name="categ_id" eval="1"/>
     </record>
 
     <!-- PARTNER -->
