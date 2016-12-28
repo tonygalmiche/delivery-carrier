@@ -130,4 +130,8 @@ class StockPicking(models.Model):
         if 'partner_firstname' in self.env.registry._init_modules \
                 and partner.firstname:
             address['firstName'] = partner.firstname
+        # because only mobile is required
+        # and phone key is used laposte roulier template
+        if address.get('mobile'):
+            address['phone'] = address.get('mobile')
         return address
