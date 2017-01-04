@@ -9,8 +9,7 @@ use delivery_roulier to ask for label
 Known Issues:
 ~~~~~~~~~~~~~
 
-Do not send the total package number information always 1/1
-work in France
+- each pack is sent on his own : no handling of numbers of picking
 
 Technical references
 --------------------
