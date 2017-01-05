@@ -33,12 +33,3 @@ class StockPicking(models.Model):
 
         return shipping_date.strftime('%Y%m%d')
 
-    @api.multi
-    def _geodis_get_auth(self, package):
-
-        self.ensure_one()
-        account = self._get_account(package)
-        return {
-            'login': account.login,
-            'password': account.get_password()
-        }
