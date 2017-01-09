@@ -65,6 +65,10 @@ class StockQuantPackage(models.Model):
             message = "Error Unknown"
             return message
 
+    def _geodis_should_include_customs(self, picking):
+        """Geodis does not return customs documents"""
+        return False
+
     @api.multi
     def _get_colis_id(self):
         sequence = self.env['ir.sequence'].next_by_code("geodis.nrecep.number")
