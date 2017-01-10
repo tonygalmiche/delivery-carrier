@@ -14,7 +14,8 @@
     'depends': [
         'delivery_roulier',
         'base_phone',
-        'attachment_base_synchronize',
+        # 'attachment_base_synchronize',
+        'delivery_carrier_deposit'
     ],
     'website': 'http://www.akretion.com/',
     'data': [
