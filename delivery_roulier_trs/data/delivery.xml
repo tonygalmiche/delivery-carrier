@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+<data>
+
+    <!-- PARTNER -->
+    <record id="partner_trs" model="res.partner">
+        <field name="name">TRS</field>
+        <field name="is_company" eval="True"/>
+        <field name="customer" eval="False"/>
+        <field name="supplier" eval="True"/>
+        <field name="street">ZA route de Somloire</field>
+        <field name="zip">49360</field>
+        <field name="city">Les Cerqueux</field>
+    </record>
+
+  <!-- DELIVERY CARRIER -->
+    <record id="delivery_carrier_trs" model="delivery.carrier">
+        <field name="name">TRS</field>
+        <field name="default_code">TRS</field>
+        <field name="code">TRS</field>
+        <field name="delivery_type">fixed</field>
+        <field name="product_type">service</field>
+        <field name="carrier_type">trs</field>
+        <field name="use_detailed_pricelist" eval="1"/>
+        <field name="deposit_slip" eval="True"/>
+        <field name="partner_id" ref="delivery_roulier_trs.partner_trs"/>
+    </record>
+
+</data>
+</openerp>
