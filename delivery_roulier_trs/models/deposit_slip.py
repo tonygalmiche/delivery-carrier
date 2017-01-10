@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from base64 import b64encode
+import logging
 
 from openerp import models
 
-from roulier import roulier
+_logger = logging.getLogger(__name__)
+try:
+    from roulier import roulier
+except ImportError:
+    _logger.debug('Cannot `import roulier`.')
 
 
 class DepositSlip(models.Model):

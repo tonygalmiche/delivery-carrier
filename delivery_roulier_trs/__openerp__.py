@@ -22,7 +22,11 @@
         'data/delivery.xml',
         'data/keychain.xml',
     ],
-    'demo': [],
+    'external_dependencies': {
+        'python': [
+            'roulier',
+        ]
+    },
     'installable': True,
     'license': 'AGPL-3',
 }
