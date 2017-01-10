@@ -48,4 +48,3 @@ class StockQuantPackage(models.Model):
         "meta",
         help="Needed for deposit slip (json OrderedDict)",
     )
-

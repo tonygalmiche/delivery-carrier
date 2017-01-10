@@ -8,7 +8,7 @@ import logging
 import json
 from collections import OrderedDict
 
-from openerp import models, api
+from openerp import models
 
 _logger = logging.getLogger(__name__)
 

@@ -75,7 +75,7 @@ class DepositSlip(models.Model):
     #             "task_id": task._model._name + ','+ str(task.id),
     #             "repository_id": task.repository_id.id,
     #         }
-    #     
+    #
     #     vals2 = {
     #         'active': True,
     #         'repository_id': repository_id,
@@ -85,5 +85,3 @@ class DepositSlip(models.Model):
     #     }
     #
     #    task_id, repository_id = get_task()
-        
-
