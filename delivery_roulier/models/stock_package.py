@@ -140,6 +140,7 @@ class StockQuantPackage(models.Model):
         payload = self._before_call(picking, payload)
         try:
             # api call
+            _logger.info(payload)  # TODO : remove this or sanitze password
             ret = roulier_instance.get_label(payload)
         except InvalidApiInput as e:
             raise UserError(self._error_handling(payload, e.message))
