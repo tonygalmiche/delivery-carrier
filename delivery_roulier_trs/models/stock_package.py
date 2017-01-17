@@ -34,12 +34,19 @@ class StockQuantPackage(models.Model):
         # trs_meta (fields.Char)
         # can't serialize directly because we want to preserve order
         # json doesn't preserve order of keys in a {}
-        meta = response.get('attachment').items()
+
+        metas = [
+            annex['data']
+            for annex in response.get('annexes')
+            if annex['name'] == 'meta'
+        ]
+
+        meta = metas[0].items()
         # self.trs_meta = simplejson.dumps(meta)
         self.trs_meta = json.dumps(meta)  # TODO : change this !
 
         return {
-            "data": response.get('payload'),
+            "data": response.get('label'),
             "tracking_id": "",
             "name": self.name,
         }
