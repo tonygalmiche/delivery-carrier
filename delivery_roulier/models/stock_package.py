@@ -4,6 +4,7 @@
 
 from functools import wraps
 import logging
+import base64
 
 from openerp import models, api
 from openerp.tools.translate import _
@@ -101,7 +102,7 @@ class StockQuantPackage(models.Model):
                     data['url'] = label['url']
                     data['type'] = 'url'
                 elif label.get('data'):
-                    data['datas'] = label['data'].encode('base64')
+                    data['datas'] = base64.b64encode(label['data'])
                     data['type'] = 'binary'
 
                 ret.append(self.env['shipping.label'].create(data))
