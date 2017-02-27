@@ -31,14 +31,6 @@ class StockQuantPackage(models.Model):
 
         return request
 
-    def _geodis_after_call(self, picking, response):
-        custom_response = {
-            'name': response['barcode'],
-            'data': response.get('label'),
-        }
-        self.parcel_tracking = response['barcode']
-        return custom_response
-
     @api.model
     def _geodis_error_handling(self, payload, response):
         payload['auth']['password'] = '****'
