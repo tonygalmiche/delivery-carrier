@@ -40,3 +40,30 @@ class StockPicking(models.Model):
         streets = partner._get_split_address(partner, 3, 35)
         address['street1'], address['street2'], address['street3'] = streets
         return address
+
+    def _geodis_prepare_edi(self):
+        """Return a dict."""
+        self.ensure_one()
+        picking = self
+        # because we ship per pack and not per picking:
+        packages = picking._get_packages_from_picking()
+        data = []
+
+        for pack in packages:
+            parcels = [{
+                "barcode": "jvjkmqfjmfjq",  # pack.barcode,
+                "weight": pack.weight
+            }]
+
+            data += [{
+                "product": picking.carrier_code,
+                "productOption": "",  # product["option"],
+                "to_address": self._convert_address(
+                    picking._get_receiver(pack)),
+                "reference1": picking.origin,
+                "reference2": "DEV-X-Y",
+                "reference3": "",
+                "shippingId": pack.geodis_shippingId,
+                "parcels": parcels
+            }]
+        return data

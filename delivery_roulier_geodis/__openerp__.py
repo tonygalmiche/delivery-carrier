@@ -13,6 +13,7 @@
     'category': 'Warehouse',
     'depends': [
         'delivery_roulier',
+        'delivery_carrier_deposit',
         'base_phone', ],
 
     'website': 'http://www.akretion.com/',

@@ -5,7 +5,7 @@
 #          Sébastien BEAU
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
-from openerp import api, models
+from openerp import api, models, fields
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -13,6 +13,8 @@ _logger = logging.getLogger(__name__)
 
 class StockQuantPackage(models.Model):
     _inherit = 'stock.quant.package'
+
+    geodis_shippingId = fields.Char()
 
     def _geodis_before_call(self, picking, request):
         # TODO _get_options is called fo each package by the result
@@ -23,8 +25,8 @@ class StockQuantPackage(models.Model):
         request['service']['agencyId'] = service['agencyId']
         request['service']['labelFormat'] = service['labelFormat']
         # TODO passer contexte multi compagny ou multi compte à la sequence"
-        shp = self._get_colis_id()
-        request['service']['shippingId'] = shp
+        self._gen_shipping_id()
+        request['service']['shippingId'] = self.geodis_shippingId
         request['service']['is_test'] = service['isTest']
 
         return request
@@ -73,9 +75,17 @@ class StockQuantPackage(models.Model):
         return False
 
     @api.multi
-    def _get_colis_id(self):
-        sequence = self.env['ir.sequence'].next_by_code("geodis.nrecep.number")
-        # this is prefixe by year_ so split it for use in shp: info
-        list = sequence.split('_')
-        # start by many zero so stringyfy before return to keep 8digits
-        return str(list[1])
+    def _gen_shipping_id(self):
+        def gen_id():
+            sequence = self.env['ir.sequence'].next_by_code(
+                "geodis.nrecep.number")
+            # this is prefixed by year_ so we split it befor use
+            year, number = sequence.split('_')
+            # pad with 0 to build an 8digits number (string)
+            return '%08d' % int(number)
+
+        for pack in self:
+            pack.geodis_shippingId = (
+                pack.geodis_shippingId or gen_id()
+            )
+        return True
