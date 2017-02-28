@@ -63,7 +63,7 @@ class StockPicking(models.Model):
                 "reference1": picking.origin,
                 "reference2": "DEV-X-Y",
                 "reference3": "",
-                "shippingId": pack.geodis_shippingId,
+                "shippingId": pack.geodis_shippingid,
                 "parcels": parcels
             }]
         return data

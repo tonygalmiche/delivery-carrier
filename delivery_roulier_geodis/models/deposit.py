@@ -6,10 +6,17 @@ from datetime import datetime
 
 from openerp import models
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
+from openerp.tools.translate import _
+from openerp.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
+
 try:
     from roulier import roulier
+    from roulier.exception import (
+        InvalidApiInput,
+        # CarrierError
+    )
 except ImportError:
     _logger.debug('Cannot `import roulier`.')
 
@@ -20,7 +27,9 @@ class DepositSlip(models.Model):
     def _geodis_prepare_data(self):
         """Create lines for each picking.
 
-        The carrier is expecting a line per shipping.
+        In a EDI file order is important.
+        Returns a dict per agencies
+
         @returns []
         """
         self.ensure_one()
@@ -28,6 +37,7 @@ class DepositSlip(models.Model):
         ships_per_agency = []
         pickagencies = {}
 
+        # sort pickings per agencies
         for picking in self.picking_ids:
             account_data = picking._get_account(None).get_data()
             pickagency = pickagencies.get(account_data['agencyId'], {
@@ -37,16 +47,16 @@ class DepositSlip(models.Model):
             pickagency['pickings'].append(picking)
             pickagencies[account_data['agencyId']] = pickagency
 
+        # do stuff on each agency
         shipments = []
         for agencyId, pickagency in pickagencies.iteritems():
             account_data = pickagency['account_data']
 
+            # consolidate all pickings
             for picking in pickagency['pickings']:
                 for ship in picking._geodis_prepare_edi():
                     shipments.append(ship)
 
-            import pdb
-            pdb.set_trace()
             from_partner = picking._get_sender(None)
             agency_partner = self.get_agency_partner(
                 picking.carrier_id, agencyId)
@@ -73,6 +83,13 @@ class DepositSlip(models.Model):
         return ships_per_agency
 
     def get_agency_partner(self, delivery_carrier_id, agency_id):
+        """Find a partner given an agency_id.
+
+        An agency is:
+            - a contact (res.partner)
+            - child of carrier company
+            - has ref field agency_id
+        """
         carrier_hq = delivery_carrier_id.partner_id
         carrier_agency = self.env['res.partner'].search(
             [['parent_id', '=', carrier_hq.id], ['ref', '=', agency_id]])
@@ -84,27 +101,32 @@ class DepositSlip(models.Model):
     def _geodis_create_edi_file(self, payload):
         """Create a edi file with headers and data.
 
+        One agency per call.
+
         params:
-            payload : [OrderedDict]
-        return: io.ByteIO
+            payload : roulier.get_api("edi")
+        return: string
         """
         geo = roulier.get('geodis')
-        edi = geo.get_edi(payload)  # io.ByteIO
+        try:
+            edi = geo.get_edi(payload)  # io.ByteIO
+        except InvalidApiInput as e:
+            print payload
+            raise UserError(_(u'Bad input: %s\n' % e.message))
+
         return edi
 
     def _geodis_create_attachments(self):
-        """Create a slip and add it in attachment."""
+        """Create EDI files in attachment."""
         payloads = self._geodis_prepare_data()
-        import pdb
-        pdb.set_trace()
-        for payload in payloads:
-            edi_file = self._geodis_create_edi_file(payload)
-            file_name = '%s.txt' % self.name
+        for idx, payload_agency in enumerate(payloads, start=1):
+            edi_file = self._geodis_create_edi_file(payload_agency)
+            file_name = '%s_%s.txt' % (self.name, idx)
             vals = {
                 'name': file_name,
                 'res_id': self.id,
                 'res_model': 'deposit.slip',
-                'datas': b64encode(edi_file),
+                'datas': b64encode(edi_file.encode('utf8')),
                 'datas_fname': file_name,
                 'type': 'binary',
             }
