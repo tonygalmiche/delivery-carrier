@@ -15,6 +15,7 @@ class StockQuantPackage(models.Model):
     _inherit = 'stock.quant.package'
 
     geodis_shippingid = fields.Char(help="Shipping Id in Geodis terminology")
+    geodis_cab = fields.Char(help="Barcode of the label")
 
     def _geodis_before_call(self, picking, request):
         # TODO _get_options is called fo each package by the result
@@ -28,6 +29,11 @@ class StockQuantPackage(models.Model):
         request['service']['shippingId'] = self.geodis_shippingid
         request['service']['is_test'] = service['isTest']
         return request
+
+    def _geodis_handle_tracking(self, picking, response):
+        self.geodis_cab = response['extra']['colis']['cab']
+        print "cab", self.geodis_cab
+        return self._roulier_handle_tracking(picking, response)
 
     def _geodis_should_include_customs(self, picking):
         """Customs documents not implemented."""

@@ -12,6 +12,14 @@ from datetime import datetime, timedelta
 
 _logger = logging.getLogger(__name__)
 
+GEODIS_DEFAULT_OPTIONS = {
+    'MES': "3",
+    'MEI': "3",
+    'CXI': "1",
+    'CX': "1",
+    'EEX': "1",
+}
+
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
@@ -41,6 +49,10 @@ class StockPicking(models.Model):
         address['street1'], address['street2'], address['street3'] = streets
         return address
 
+    def _geodis_get_options(self, package):
+        """Define options for the shippment."""
+        return GEODIS_DEFAULT_OPTIONS.get(self.carrier_code, '')
+
     def _geodis_prepare_edi(self):
         """Return a dict."""
         self.ensure_one()
@@ -51,17 +63,17 @@ class StockPicking(models.Model):
 
         for pack in packages:
             parcels = [{
-                "barcode": "jvjkmqfjmfjq",  # pack.barcode,
+                "barcode": pack.geodis_cab,
                 "weight": pack.weight
             }]
 
             data += [{
                 "product": picking.carrier_code,
-                "productOption": "",  # product["option"],
+                "productOption": picking._get_options(pack),
                 "to_address": self._convert_address(
                     picking._get_receiver(pack)),
                 "reference1": picking.origin,
-                "reference2": "DEV-X-Y",
+                "reference2": "",
                 "reference3": "",
                 "shippingId": pack.geodis_shippingid,
                 "parcels": parcels

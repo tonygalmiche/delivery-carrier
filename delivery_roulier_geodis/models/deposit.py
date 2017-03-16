@@ -49,7 +49,9 @@ class DepositSlip(models.Model):
 
         # do stuff on each agency
         shipments = []
+        i = 0
         for agencyId, pickagency in pickagencies.iteritems():
+            i += 1
             account_data = pickagency['account_data']
 
             # consolidate all pickings
@@ -61,17 +63,17 @@ class DepositSlip(models.Model):
             agency_partner = self.get_agency_partner(
                 picking.carrier_id, agencyId)
 
-            from_address = picking._convert_address(from_partner)
-            agency_address = picking._convert_address(agency_partner)
+            from_address = self._convert_address(from_partner)
+            agency_address = self._convert_address(agency_partner)
 
             service = {
-                'deposit': self.name,
+                'depositId': '%s%s' % (self.id, i),
                 'depositDate': datetime.strptime(
                     self.create_date,
                     DEFAULT_SERVER_DATETIME_FORMAT),
                 'customerId': account_data['customerId'],
                 'interchangeSender': account_data['interchangeSender'],
-                'interchangeReceiver': account_data['interchangeReceiver'],
+                'interchangeRecipient': account_data['interchangeRecipient'],
             }
 
             ships_per_agency.append({
@@ -81,6 +83,12 @@ class DepositSlip(models.Model):
                 'service': service
             })
         return ships_per_agency
+
+    def _convert_address(self, partner):
+        """Return a dict of a partner."""
+        address = self.env['stock.picking']._convert_address(partner)
+        address['siret'] = partner.siret
+        return address
 
     def get_agency_partner(self, delivery_carrier_id, agency_id):
         """Find a partner given an agency_id.

@@ -22,6 +22,8 @@ class AccountProduct(models.Model):
                 'customerId': '',
                 'labelFormat': 'ZPL',
                 'isTest': True,
+                'interchangeSender': '',
+                'interchangeRecipient': ''
                 }
 
     def _roulier_geodis_validate_data(self, data):
