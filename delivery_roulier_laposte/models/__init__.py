@@ -1,5 +1,5 @@
 from . import company
-from . import stock
+from . import stock_picking
 from . import delivery
-from . import stock_package
+from . import stock_quant_package
 from . import keychain
