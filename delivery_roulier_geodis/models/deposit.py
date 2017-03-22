@@ -63,8 +63,8 @@ class DepositSlip(models.Model):
             agency_partner = self.get_agency_partner(
                 picking.carrier_id, agencyId)
 
-            from_address = self._convert_address(from_partner)
-            agency_address = self._convert_address(agency_partner)
+            from_address = self._convert_address(from_partner, picking)
+            agency_address = self._convert_address(agency_partner, picking)
 
             service = {
                 'depositId': '%s%s' % (self.id, i),
@@ -84,9 +84,10 @@ class DepositSlip(models.Model):
             })
         return ships_per_agency
 
-    def _convert_address(self, partner):
+    def _convert_address(self, partner, picking=None):
         """Return a dict of a partner."""
-        address = self.env['stock.picking']._convert_address(partner)
+        picking = picking or self.env['stock.picking']
+        address = picking._convert_address(partner)
         address['siret'] = partner.siret
         return address
 
