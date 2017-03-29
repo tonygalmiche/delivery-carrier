@@ -6,3 +6,4 @@ stock-logistics-workflow
 webkit-tools
 connector-telephony
 intrastat
+l10n-france
