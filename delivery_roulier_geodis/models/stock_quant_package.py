@@ -32,7 +32,6 @@ class StockQuantPackage(models.Model):
 
     def _geodis_handle_tracking(self, picking, response):
         self.geodis_cab = response['extra']['colis']['cab']
-        print "cab", self.geodis_cab
         return self._roulier_handle_tracking(picking, response)
 
     def _geodis_should_include_customs(self, picking):

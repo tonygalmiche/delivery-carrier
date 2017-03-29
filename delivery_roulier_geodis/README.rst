@@ -17,12 +17,12 @@ Agency: Geodis's hub your warehouse depends upon.
 Configuration
 
 ## Create a partner for your agency.
-	
+
 This modules comes with only one partner "Geodis". It's the head quarters of Geodis.
 You need to create partners for the agency you depends : 
 - create a sub contact of "Geodis HQ",
 - pay attention to fill correctly name, streets, phone, zip code, country and *SIRET*
-- fill "ref" (_internal reference_) field with the agency id.
+- fill "ref" (internal reference) field with the agency id.
 
 
 Features:

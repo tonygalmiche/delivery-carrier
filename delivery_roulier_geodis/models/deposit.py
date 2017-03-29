@@ -120,9 +120,7 @@ class DepositSlip(models.Model):
         try:
             edi = geo.get_edi(payload)  # io.ByteIO
         except InvalidApiInput as e:
-            print payload
             raise UserError(_(u'Bad input: %s\n' % e.message))
-
         return edi
 
     def _geodis_create_attachments(self):
