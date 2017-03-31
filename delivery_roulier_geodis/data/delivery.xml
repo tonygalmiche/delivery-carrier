@@ -8,9 +8,9 @@
         <field name="is_company" eval="True"/>
         <field name="customer" eval="False"/>
         <field name="supplier" eval="True"/>
-        <field name="street">rue du GEOCOLIs</field>
-        <field name="zip">99999</field>
-        <field name="city">XXXXXX PFC</field>
+        <field name="street">26 Quai Charles Pasqua</field>
+        <field name="zip">92300</field>
+        <field name="city">Levallois-Perret</field>
     </record>
 
   <!-- DELIVERY CARRIER -->
