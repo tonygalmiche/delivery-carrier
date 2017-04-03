@@ -50,7 +50,7 @@ class DepositSlip(models.Model):
         # do stuff on each agency
         shipments = []
         i = 0
-        for agencyId, pickagency in pickagencies.iteritems():
+        for agency_id, pickagency in pickagencies.iteritems():
             i += 1
             account_data = pickagency['account_data']
 
@@ -59,12 +59,10 @@ class DepositSlip(models.Model):
                 for ship in picking._geodis_prepare_edi():
                     shipments.append(ship)
 
-            from_partner = picking._get_sender(None)
-            agency_partner = self.get_agency_partner(
-                picking.carrier_id, agencyId)
-
-            from_address = self._convert_address(from_partner, picking)
-            agency_address = self._convert_address(agency_partner, picking)
+            from_address = self._geodis_get_from_address(
+                picking)
+            agency_address = self._geodis_get_agency_address(
+                picking, agency_id)
 
             service = {
                 'depositId': '%s%s' % (self.id, i),
@@ -84,14 +82,22 @@ class DepositSlip(models.Model):
             })
         return ships_per_agency
 
-    def _convert_address(self, partner, picking=None):
-        """Return a dict of a partner."""
-        picking = picking or self.env['stock.picking']
+    def _geodis_get_from_address(self, picking):
+        """Return a dict of the sender."""
+        partner = picking._get_sender(None)
         address = picking._convert_address(partner)
         address['siret'] = partner.siret
         return address
 
-    def get_agency_partner(self, delivery_carrier_id, agency_id):
+    def _geodis_get_agency_address(self, picking, agency_id):
+        """Return a dict the agency."""
+        partner = self._geodis_get_agency_partner(
+            picking.carrier_id, agency_id)
+        address = picking._convert_address(partner)
+        address['siret'] = partner.siret
+        return address
+
+    def _geodis_get_agency_partner(self, delivery_carrier_id, agency_id):
         """Find a partner given an agency_id.
 
         An agency is:
