@@ -48,9 +48,9 @@ class DepositSlip(models.Model):
             pickagencies[account_data['agencyId']] = pickagency
 
         # do stuff on each agency
-        shipments = []
         i = 0
         for agency_id, pickagency in pickagencies.iteritems():
+            shipments = []
             i += 1
             account_data = pickagency['account_data']
 
