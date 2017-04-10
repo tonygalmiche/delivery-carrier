@@ -16,6 +16,7 @@
         'base_suspend_security',
         'product_harmonized_system',  # from oca/intrastat
         'base_delivery_carrier_label',
+        'document',
     ],
     'website': 'http://www.akretion.com/',
     'data': [
