@@ -32,6 +32,7 @@ def implemented_by_carrier(func):
         return getattr(cls, fun)(*args, **kwargs)
     return wrapper
 
+
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
