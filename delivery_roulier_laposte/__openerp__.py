@@ -13,6 +13,7 @@
     'category': 'Warehouse',
     'depends': [
         'delivery_roulier',
+        'delivery_roulier_options',
         'intrastat_base',  # for customs declaration
     ],
     'website': 'http://www.akretion.com/',
