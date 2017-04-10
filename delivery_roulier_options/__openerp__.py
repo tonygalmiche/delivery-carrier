@@ -17,7 +17,6 @@
     'website': 'http://www.akretion.com/',
     'data': [
         'data/delivery.xml',
-        'data/keychain.xml'
     ],
     'demo': [],
     'installable': True,
