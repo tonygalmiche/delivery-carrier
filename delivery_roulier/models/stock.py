@@ -249,4 +249,11 @@ class StockPicking(models.Model):
         address['street1'] = partner.street
         # Codet ISO 3166-1-alpha-2 (2 letters code)
         address['country'] = partner.country_id.code
+
+        for tel in ['mobile', 'phone']:
+            if address.get(tel):
+                address[tel] = address[tel].replace(u'\u00A0', '')
+
+        address['phone'] = address.get('mobile', address.get('phone'))
+
         return address
