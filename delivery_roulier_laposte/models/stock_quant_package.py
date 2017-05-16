@@ -35,9 +35,9 @@ class StockQuantPackage(models.Model):
             )
         # TODO _get_options is called fo each package by the result
         # is the same. Should be store after first call
-        request['parcel'].update(picking._laposte_get_options(self))
-        if request['parcel'].get('COD'):
-            request['parcel']['codAmount'] = self._get_cash_on_delivery(
+        request['parcels'][0].update(picking._laposte_get_options(self))
+        if request['parcels'][0].get('COD'):
+            request['parcels'][0]['codAmount'] = self._get_cash_on_delivery(
                 picking)
         request['service']['totalAmount'] = '%.f' % (  # truncate to string
             calc_package_price() * 100  # totalAmount is in centimes
