@@ -63,28 +63,28 @@
         <field name="mandatory" eval="False"/>
         <field name="by_default" eval="False"/>
         <field name="carrier_id" ref="delivery_carrier_DOS"/>
-        <field name="tmpl_option_id" ref="delivery_roulier.carrier_opt_tmpl_FCR"/>
+        <field name="tmpl_option_id" ref="delivery_roulier_options.carrier_opt_tmpl_FCR"/>
     </record>
     <record id="DOS_laposte_carrier_opt_tmpl_COD" model="delivery.carrier.option">
         <field name="readonly_flag" eval="True"/>
         <field name="mandatory" eval="False"/>
         <field name="by_default" eval="False"/>
         <field name="carrier_id" ref="delivery_carrier_DOS"/>
-        <field name="tmpl_option_id" ref="delivery_roulier.carrier_opt_tmpl_COD"/>
+        <field name="tmpl_option_id" ref="delivery_roulier_options.carrier_opt_tmpl_COD"/>
     </record>
     <record id="DOS_laposte_carrier_opt_tmpl_INS" model="delivery.carrier.option">
         <field name="readonly_flag" eval="True"/>
         <field name="mandatory" eval="False"/>
         <field name="by_default" eval="False"/>
         <field name="carrier_id" ref="delivery_carrier_DOS"/>
-        <field name="tmpl_option_id" ref="delivery_roulier.carrier_opt_tmpl_INS"/>
+        <field name="tmpl_option_id" ref="delivery_roulier_options.carrier_opt_tmpl_INS"/>
     </record>
     <record id="DOS_laposte_carrier_opt_tmpl_ACK" model="delivery.carrier.option">
         <field name="readonly_flag" eval="True"/>
         <field name="mandatory" eval="False"/>
         <field name="by_default" eval="False"/>
         <field name="carrier_id" ref="delivery_carrier_DOS"/>
-        <field name="tmpl_option_id" ref="delivery_roulier.carrier_opt_tmpl_ACK"/>
+        <field name="tmpl_option_id" ref="delivery_roulier_options.carrier_opt_tmpl_ACK"/>
     </record>
 
     <record id="delivery_carrier_CORE" model="delivery.carrier">
@@ -110,7 +110,7 @@
         <field name="mandatory" eval="False"/>
         <field name="by_default" eval="False"/>
         <field name="carrier_id" ref="delivery_carrier_CORE"/>
-        <field name="tmpl_option_id" ref="delivery_roulier.carrier_opt_tmpl_INS"/>
+        <field name="tmpl_option_id" ref="delivery_roulier_options.carrier_opt_tmpl_INS"/>
         <!-- Pas de niveau de recommandation possible: seulement assurance -->
     </record>
 
@@ -138,7 +138,7 @@
         <field name="mandatory" eval="False"/>
         <field name="by_default" eval="False"/>
         <field name="carrier_id" ref="delivery_carrier_COM"/>
-        <field name="tmpl_option_id" ref="delivery_roulier.carrier_opt_tmpl_FCR"/>
+        <field name="tmpl_option_id" ref="delivery_roulier_options.carrier_opt_tmpl_FCR"/>
     </record>
 
     <record id="delivery_carrier_CDS" model="delivery.carrier">
@@ -164,7 +164,7 @@
         <field name="mandatory" eval="False"/>
         <field name="by_default" eval="False"/>
         <field name="carrier_id" ref="delivery_carrier_CDS"/>
-        <field name="tmpl_option_id" ref="delivery_roulier.carrier_opt_tmpl_ACK"/>
+        <field name="tmpl_option_id" ref="delivery_roulier_options.carrier_opt_tmpl_ACK"/>
     </record>
     <record id="CDS_laposte_carrier_opt_tmpl_FCR"
             model="delivery.carrier.option">
@@ -172,14 +172,14 @@
         <field name="mandatory" eval="False"/>
         <field name="by_default" eval="False"/>
         <field name="carrier_id" ref="delivery_carrier_CDS"/>
-        <field name="tmpl_option_id" ref="delivery_roulier.carrier_opt_tmpl_FCR"/>
+        <field name="tmpl_option_id" ref="delivery_roulier_options.carrier_opt_tmpl_FCR"/>
     </record>
     <record id="CDS_laposte_carrier_opt_tmpl_INS" model="delivery.carrier.option">
         <field name="readonly_flag" eval="True"/>
         <field name="mandatory" eval="False"/>
         <field name="by_default" eval="False"/>
         <field name="carrier_id" ref="delivery_carrier_CDS"/>
-        <field name="tmpl_option_id" ref="delivery_roulier.carrier_opt_tmpl_INS"/>
+        <field name="tmpl_option_id" ref="delivery_roulier_options.carrier_opt_tmpl_INS"/>
         <!-- Pas de niveau de recommandation possible: seulement assurance -->
     </record>
 
@@ -207,14 +207,14 @@
         <field name="mandatory" eval="False"/>
         <field name="by_default" eval="False"/>
         <field name="carrier_id" ref="delivery_carrier_CORI"/>
-        <field name="tmpl_option_id" ref="delivery_roulier.carrier_opt_tmpl_ACK"/>
+        <field name="tmpl_option_id" ref="delivery_roulier_options.carrier_opt_tmpl_ACK"/>
     </record>
     <record id="CORI_laposte_carrier_opt_tmpl_INS" model="delivery.carrier.option">
         <field name="readonly_flag" eval="True"/>
         <field name="mandatory" eval="False"/>
         <field name="by_default" eval="False"/>
         <field name="carrier_id" ref="delivery_carrier_CORI"/>
-        <field name="tmpl_option_id" ref="delivery_roulier.carrier_opt_tmpl_INS"/>
+        <field name="tmpl_option_id" ref="delivery_roulier_options.carrier_opt_tmpl_INS"/>
         <!-- Pas de niveau de recommandation possible: seulement assurance -->
     </record>
 
@@ -242,14 +242,14 @@
         <field name="mandatory" eval="False"/>
         <field name="by_default" eval="False"/>
         <field name="carrier_id" ref="delivery_carrier_COLI"/>
-        <field name="tmpl_option_id" ref="delivery_roulier.carrier_opt_tmpl_ACK"/>
+        <field name="tmpl_option_id" ref="delivery_roulier_options.carrier_opt_tmpl_ACK"/>
     </record>
     <record id="COLI_laposte_carrier_opt_tmpl_INS" model="delivery.carrier.option">
         <field name="readonly_flag" eval="True"/>
         <field name="mandatory" eval="False"/>
         <field name="by_default" eval="False"/>
         <field name="carrier_id" ref="delivery_carrier_COLI"/>
-        <field name="tmpl_option_id" ref="delivery_roulier.carrier_opt_tmpl_INS"/>
+        <field name="tmpl_option_id" ref="delivery_roulier_options.carrier_opt_tmpl_INS"/>
         <!-- Pas de niveau de recommandation possible: seulement assurance -->
     </record>
 
