@@ -53,7 +53,7 @@ class StockPicking(models.Model):
     @api.depends('option_ids')
     def _compute_check_options(self):
         insurance_opt = self.env.ref(
-            'delivery_roulier.carrier_opt_tmpl_INS', False)
+            'delivery_roulier_option.carrier_opt_tmpl_INS', False)
         for rec in self:
             if insurance_opt in [x.tmpl_option_id for x in rec.option_ids]:
                 rec.display_insurance = True
