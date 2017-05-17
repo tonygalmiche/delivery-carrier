@@ -2,10 +2,6 @@
 <openerp>
 <data>
 
-    <!-- PRODUCT  -->
-    <!-- PARTNER -->
-  
-
     <!-- DELIVERY CARRIER TEMPLATE OPTION -->
     <record id="carrier_opt_tmpl_ACK" model="delivery.carrier.template.option">
         <field name="name">Acknowledgment</field>

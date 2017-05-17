@@ -8,25 +8,18 @@
     'name': 'Delivery Carrier La Poste (fr)',
     'version': '9.0.1.0.0',
     'author': 'Akretion',
-    'summary': 'Generate Label for La Poste Colissimo',
-    'maintainer': 'Akretion, Odoo Community Association (OCA)',
+    'summary': 'Generate Label for La Poste/Colissimo',
+    'maintainer': 'Akretion,Odoo Community Association (OCA)',
     'category': 'Warehouse',
     'depends': [
         'delivery_roulier',
-        'base_phone',
-        'intrastat_base',
-        # 'delivery_carrier_deposit',
+        'delivery_roulier_option',
+        'intrastat_base',  # for customs declaration
     ],
     'website': 'http://www.akretion.com/',
     'data': [
         'data/delivery.xml',
-    ],
-    'demo': [
-        'demo/res.partner.csv',
-        'demo/company.xml',
-        'demo/product.xml',
-        'demo/stock.picking.csv',
-        'demo/stock.move.csv',
+        'views/stock_picking.xml',
     ],
     'external_dependencies': {
         'python': [
