@@ -19,6 +19,7 @@
     'website': 'http://www.akretion.com/',
     'data': [
         'data/delivery.xml',
+        'views/stock_picking.xml',
     ],
     'external_dependencies': {
         'python': [
