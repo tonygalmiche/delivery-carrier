@@ -17,6 +17,17 @@ class StockQuantPackage(models.Model):
     geodis_shippingid = fields.Char(help="Shipping Id in Geodis terminology")
     geodis_cab = fields.Char(help="Barcode of the label")
 
+    @api.multi
+    def _geodis_generate_labels(self, picking):
+        packages = self
+        response = packages._call_roulier_api(picking)
+        packages._handle_tracking(picking, response)
+        packages._handle_attachments(picking, response)
+
+    @api.multi
+    def _geodis_get_parcels(self, picking):
+        return [pack._get_parcel(picking) for pack in self]
+
     def _geodis_before_call(self, picking, request):
         # TODO _get_options is called fo each package by the result
         # is the same. Should be store after first call
