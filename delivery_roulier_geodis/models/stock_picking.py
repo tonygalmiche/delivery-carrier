@@ -5,7 +5,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 import logging
-from openerp import models
+from openerp import models, api, fields
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
 from datetime import datetime, timedelta
@@ -23,6 +23,7 @@ GEODIS_DEFAULT_OPTIONS = {
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
+    geodis_shippingid = fields.Char(help="Shipping Id in Geodis terminology")
 
     def _geodis_get_shipping_date(self, package_id):
         """Estimate shipping date."""
@@ -79,3 +80,25 @@ class StockPicking(models.Model):
                 "parcels": parcels
             }]
         return data
+
+    @api.multi
+    def _gen_shipping_id(self):
+        """Generate a shipping id.
+
+        Shipping id is persisted on the picking and it's
+        calculated from a sequence since it should be
+        8 char long and unique for at least 1 year
+        """
+        def gen_id():
+            sequence = self.env['ir.sequence'].next_by_code(
+                "geodis.nrecep.number")
+            # this is prefixed by year_ so we split it befor use
+            year, number = sequence.split('_')
+            # pad with 0 to build an 8digits number (string)
+            return '%08d' % int(number)
+
+        for picking in self:
+            picking.geodis_shippingid = (
+                picking.geodis_shippingid or gen_id()
+            )
+        return True
