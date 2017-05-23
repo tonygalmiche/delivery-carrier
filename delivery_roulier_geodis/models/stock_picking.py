@@ -58,28 +58,24 @@ class StockPicking(models.Model):
         """Return a dict."""
         self.ensure_one()
         picking = self
-        # because we ship per pack and not per picking:
+
         packages = picking._get_packages_from_picking()
-        data = []
+        parcels = [{
+            "barcode": pack.geodis_cab,
+            "weight": pack.weight
+        } for pack in packages]
 
-        for pack in packages:
-            parcels = [{
-                "barcode": pack.geodis_cab,
-                "weight": pack.weight
-            }]
-
-            data += [{
-                "product": picking.carrier_code,
-                "productOption": picking._get_options(pack),
-                "to_address": self._convert_address(
-                    picking._get_receiver(pack)),
-                "reference1": picking.origin,
-                "reference2": "",
-                "reference3": "",
-                "shippingId": pack.geodis_shippingid,
-                "parcels": parcels
-            }]
-        return data
+        return [{
+            "product": picking.carrier_code,
+            "productOption": picking._get_options(None),
+            "to_address": self._convert_address(
+                picking._get_receiver(None)),
+            "reference1": picking.origin,
+            "reference2": "",
+            "reference3": "",
+            "shippingId": picking.geodis_shippingid,
+            "parcels": parcels
+        }]
 
     @api.multi
     def _gen_shipping_id(self):

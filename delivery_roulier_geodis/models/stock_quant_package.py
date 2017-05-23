@@ -45,6 +45,7 @@ class StockQuantPackage(models.Model):
         i = 0
         for rec in self:
             rec.geodis_cab = response['parcels'][i]['number']
+            i = i + 1
         return self._roulier_handle_tracking(picking, response)
 
     def _geodis_should_include_customs(self, picking):
