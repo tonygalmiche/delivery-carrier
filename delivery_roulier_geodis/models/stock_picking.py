@@ -48,7 +48,7 @@ class StockPicking(models.Model):
         # get_split_adress from partner_helper module
         streets = partner._get_split_address(partner, 3, 35)
         address['street1'], address['street2'], address['street3'] = streets
-        for field in ('name', 'company', 'city'):
+        for field in ('name', 'city'):
             address[field] = address[field][0:35]
         return address
 
