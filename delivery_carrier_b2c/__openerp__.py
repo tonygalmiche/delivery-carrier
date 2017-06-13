@@ -27,7 +27,7 @@
     'category': '',
     'depends': [
         'base_delivery_carrier_label',
-        'partner_helper',
+        'base_partner_helper',
     ],
     'description': """
 Delivery Carrier Business To Customer

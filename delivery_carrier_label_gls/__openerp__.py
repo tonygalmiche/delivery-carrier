@@ -30,7 +30,7 @@
     'depends': [
         'base_delivery_carrier_label',
         'configuration_helper',
-        'partner_helper',
+        'base_partner_helper',
     ],
     'description': """
 Delivery Carrier Label GLS (french carrier)
