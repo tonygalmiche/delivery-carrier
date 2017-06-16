@@ -2,6 +2,24 @@
 <openerp>
     <data noupdate="0">
 
+    <!-- PRODUCT  -->
+    <record id="product_product_dummy" model="product.product">
+        <field name="default_code">SHIP_DUMMY</field>
+        <field name="type">service</field>
+        <field name="name">Test only - DUMMY</field>
+        <field name="categ_id" eval="1"/>
+    </record>
+
+    <!-- PARTNER -->
+    <record id="partner_dummy" model="res.partner">
+        <field name="name">DUMMY</field>
+        <field name="customer" eval="False"/>
+        <field name="supplier" eval="True"/>
+        <field name="street">parcel street</field>
+        <field name="zip">99999</field>
+        <field name="city">XXXXXX PFC</field>
+    </record>
+
     <!-- DELIVERY CARRIER -->
     <record id="delivery_carrier_dummy" model="delivery.carrier">
         <field name="name">DUMMY</field>
