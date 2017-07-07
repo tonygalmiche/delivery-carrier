@@ -35,6 +35,7 @@ class StockQuantPackage(models.Model):
         service = account.get_data()
         request['service']['customerId'] = service['customerId']
         request['service']['agencyId'] = service['agencyId']
+        request['service']['hubId'] = service['hubId']
         request['service']['labelFormat'] = service['labelFormat']
         request['service']['shippingId'] = picking.geodis_shippingid
         request['service']['is_test'] = service['isTest']
