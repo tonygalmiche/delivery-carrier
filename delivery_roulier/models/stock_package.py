@@ -186,7 +186,7 @@ class StockQuantPackage(models.Model):
             articles.append(article)
             product = operation.product_id
             # stands for harmonized_system
-            hs = product.product_tmpl_id.get_hs_code_recursively()
+            hs = product.get_hs_code_recursively()
 
             article['quantity'] = '%.f' % operation.product_qty
             article['weight'] = (
