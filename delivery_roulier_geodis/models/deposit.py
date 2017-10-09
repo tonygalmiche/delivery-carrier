@@ -34,53 +34,72 @@ class DepositSlip(models.Model):
         """
         self.ensure_one()
 
-        ships_per_agency = []
-        pickagencies = {}
+        # build a dict of pickings per agencies
+        def pickings_agencies(pickings):
+            agencies = {}
+            for picking in pickings:
+                account = picking._get_account(None).get_data()
+                agencies.setdefault(account['agencyId'], {
+                    "account": account,
+                    "pickings": [],
+                })["pickings"].append(picking)
+            return agencies
 
-        # sort pickings per agencies
-        for picking in self.picking_ids:
-            account_data = picking._get_account(None).get_data()
-            pickagency = pickagencies.get(account_data['agencyId'], {
-                "pickings": [],
-                "account_data": account_data
-            })
-            pickagency['pickings'].append(picking)
-            pickagencies[account_data['agencyId']] = pickagency
+        pickagencies = pickings_agencies(self.picking_ids)
 
-        # do stuff on each agency
+        # build a dict of pickings per sender
+        def pickings_senders(pickings):
+            senders = {}
+            for picking in pickings:
+                partner = picking._get_sender(None)
+                senders.setdefault(partner.id, {
+                    "pickings": [],
+                })["pickings"].append(picking)
+            return senders
+
+        for pickagency in pickagencies:
+            pickagency['senders'] = pickings_senders(
+                pickagency['pickings'])
+
+        # build a response file per agency / sender
+        files = []
         i = 0
         for agency_id, pickagency in pickagencies.iteritems():
-            shipments = []
             i += 1
-            account_data = pickagency['account_data']
 
-            # consolidate all pickings
-            for picking in pickagency['pickings']:
-                for ship in picking._geodis_prepare_edi():
-                    shipments.append(ship)
+            account = pickagency['account']
+            for sender_id, picksender in pickagency['senders'].iteritems():
 
-            from_address = self._geodis_get_from_address(
-                picking)
-            agency_address = self._geodis_get_agency_address(
-                picking, agency_id)
+                # consolidate pickings for agency / sender
+                shipments = [
+                    picking._geodis_prepare_edi()
+                    for picking in picksender['pickings']]
 
-            service = {
-                'depositId': '%s%s' % (self.id, i),
-                'depositDate': datetime.strptime(
-                    self.create_date,
-                    DEFAULT_SERVER_DATETIME_FORMAT),
-                'customerId': account_data['customerId'],
-                'interchangeSender': account_data['interchangeSender'],
-                'interchangeRecipient': account_data['interchangeRecipient'],
-            }
+                # we need one of the pickings to lookup addresses
+                picking = picksender['pickings'][0]
+                from_address = self._geodis_get_from_address(
+                    picking)
+                agency_address = self._geodis_get_agency_address(
+                    picking, agency_id)
 
-            ships_per_agency.append({
-                'shipments': shipments,
-                'from_address': from_address,
-                'agency_address': agency_address,
-                'service': service
-            })
-        return ships_per_agency
+                service = {
+                    'depositId': '%s%s' % (self.id, i),
+                    'depositDate': datetime.strptime(
+                        self.create_date,
+                        DEFAULT_SERVER_DATETIME_FORMAT),
+                    'customerId': account['customerId'],
+                    'interchangeSender': account['interchangeSender'],
+                    'interchangeRecipient': account['interchangeRecipient'],
+                }
+                files.append({
+                    'shipments': shipments,
+                    'from_address': from_address,
+                    'agency_address': agency_address,
+                    'service': service,
+                    'agency_id': agency_id,
+                    'sender_id': sender_id,
+                })
+        return files
 
     def _geodis_get_from_address(self, picking):
         """Return a dict of the sender."""
