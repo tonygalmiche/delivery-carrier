@@ -64,7 +64,7 @@ class StockPicking(models.Model):
         return GEODIS_DEFAULT_OPTIONS.get(self.carrier_code, '')
 
     def _geodis_prepare_edi(self):
-        """Return a dict."""
+        """Return a list."""
         self.ensure_one()
         picking = self
 
@@ -74,7 +74,7 @@ class StockPicking(models.Model):
             "weight": pack.weight
         } for pack in packages]
 
-        return [{
+        return {
             "product": picking.carrier_code,
             "productOption": picking._get_options(None),
             "productTod": GEODIS_DEFAULT_TOD[picking.carrier_code],
@@ -85,7 +85,7 @@ class StockPicking(models.Model):
             "reference3": "",
             "shippingId": picking.geodis_shippingid,
             "parcels": parcels
-        }]
+        }
 
     @api.multi
     def _gen_shipping_id(self):

@@ -41,6 +41,7 @@ class DepositSlip(models.Model):
                 account = picking._get_account(None).get_data()
                 agencies.setdefault(account['agencyId'], {
                     "account": account,
+                    "senders": None,
                     "pickings": [],
                 })["pickings"].append(picking)
             return agencies
@@ -57,7 +58,7 @@ class DepositSlip(models.Model):
                 })["pickings"].append(picking)
             return senders
 
-        for pickagency in pickagencies:
+        for agency_id, pickagency in pickagencies.iteritems():
             pickagency['senders'] = pickings_senders(
                 pickagency['pickings'])
 
