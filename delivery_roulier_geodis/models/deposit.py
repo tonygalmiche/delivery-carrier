@@ -66,16 +66,15 @@ class DepositSlip(models.Model):
         files = []
         i = 0
         for agency_id, pickagency in pickagencies.iteritems():
-            i += 1
 
             account = pickagency['account']
             for sender_id, picksender in pickagency['senders'].iteritems():
+                i += 1
 
                 # consolidate pickings for agency / sender
                 shipments = [
                     picking._geodis_prepare_edi()
                     for picking in picksender['pickings']]
-
                 # we need one of the pickings to lookup addresses
                 picking = picksender['pickings'][0]
                 from_address = self._geodis_get_from_address(
