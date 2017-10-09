@@ -148,12 +148,16 @@ class DepositSlip(models.Model):
             raise UserError(_(u'Bad input: %s\n' % e.message))
         return edi
 
+    def _get_geodis_attachment_name(self, idx, payload_agency):
+        return '%s_%s.txt' % (self.name, idx)
+
     def _geodis_create_attachments(self):
         """Create EDI files in attachment."""
         payloads = self._geodis_prepare_data()
+        attachments = self.env['ir.attachment']
         for idx, payload_agency in enumerate(payloads, start=1):
             edi_file = self._geodis_create_edi_file(payload_agency)
-            file_name = '%s_%s.txt' % (self.name, idx)
+            file_name = self._get_geodis_attachment_name(idx, payload_agency)
             vals = {
                 'name': file_name,
                 'res_id': self.id,
@@ -162,8 +166,8 @@ class DepositSlip(models.Model):
                 'datas_fname': file_name,
                 'type': 'binary',
             }
-            self.env['ir.attachment.metadata'].create(vals)
-        return True
+            attachments += self.env['ir.attachment'].create(vals)
+        return attachments
 
     def create_edi_file(self):
         self.ensure_one()
