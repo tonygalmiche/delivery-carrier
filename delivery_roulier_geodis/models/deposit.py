@@ -40,7 +40,6 @@ class DepositSlip(models.Model):
             for picking in pickings:
                 account = picking._get_account(None).get_data()
                 agencies.setdefault(account['agencyId'], {
-                    "account": account,
                     "senders": None,
                     "pickings": [],
                 })["pickings"].append(picking)
@@ -55,6 +54,7 @@ class DepositSlip(models.Model):
                 partner = picking._get_sender(None)
                 senders.setdefault(partner.id, {
                     "pickings": [],
+                    "account": picking._get_account(None).get_data()
                 })["pickings"].append(picking)
             return senders
 
@@ -66,8 +66,6 @@ class DepositSlip(models.Model):
         files = []
         i = 0
         for agency_id, pickagency in pickagencies.iteritems():
-
-            account = pickagency['account']
             for sender_id, picksender in pickagency['senders'].iteritems():
                 i += 1
 
@@ -81,6 +79,7 @@ class DepositSlip(models.Model):
                     picking)
                 agency_address = self._geodis_get_agency_address(
                     picking, agency_id)
+                account = picksender['account']
 
                 service = {
                     'depositId': '%s%s' % (self.id, i),
