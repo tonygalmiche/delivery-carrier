@@ -3,14 +3,12 @@
 #          David BEAL <david.beal@akretion.com>
 #          Sébastien BEAU
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
-
 import logging
-from openerp import models, fields, api
-from openerp.exceptions import Warning as UserError
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
-
 from datetime import datetime, timedelta
 
+from odoo import models, fields, api
+from odoo.exceptions import UserError
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
 _logger = logging.getLogger(__name__)
 
@@ -107,7 +105,7 @@ class StockPicking(models.Model):
         """
         address = self._roulier_convert_address(partner) or {}
         # get_split_adress from partner_helper module
-        streets = partner._get_split_address(partner, 3, 38)
+        streets = partner._get_split_address(3, 38)
         address['street'], address['street2'], address['street3'] = streets
         # TODO manage in a better way if partner_firstname is installed
         address['firstName'] = '.'

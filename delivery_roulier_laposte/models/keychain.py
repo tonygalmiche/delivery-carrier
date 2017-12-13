@@ -19,10 +19,7 @@ class AccountProduct(models.Model):
         selection_add=[(LAPOSTE_KEYCHAIN_NAMESPACE, 'Laposte')])
 
     def _roulier_laposte_init_data(self):
-        return {
-            "codeAgence": "",
-        }
+        return {}
 
     def _roulier_laposte_validate_data(self, data):
-        # on aurait pu utiliser Cerberus ici
-        return 'codeAgence' in data
+        return True

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
-<!--    <data noupdate="1">-->
-<data>
+<odoo>
+    <data noupdate="1">
 
     <!-- PARTNER -->
     <record id="partner_la_poste" model="res.partner">
@@ -22,7 +21,6 @@
 
     <!-- DELIVERY CARRIER -->
     <record id="delivery_carrier_DOM" model="delivery.carrier">
-        <field name="name">Colissimo Domicile</field>
         <field name="name">Colissimo Domicile (FR + Europe)</field>
         <field name="default_code">DOM</field>
         <field name="code">DOM</field>
@@ -253,6 +251,5 @@
         <!-- Pas de niveau de recommandation possible: seulement assurance -->
     </record>
 
-
 </data>
-</openerp>
+</odoo>
