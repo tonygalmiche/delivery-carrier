@@ -77,7 +77,7 @@ class StockPicking(models.Model):
         return {
             "product": picking.carrier_code,
             "productOption": picking._get_options(None),
-            "productTod": GEODIS_DEFAULT_TOD[picking.carrier_code],
+            "productTOD": GEODIS_DEFAULT_TOD[picking.carrier_code],
             "to_address": self._convert_address(
                 picking._get_receiver(None)),
             "reference1": picking.origin,
