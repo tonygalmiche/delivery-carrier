@@ -23,7 +23,8 @@ class AccountProduct(models.Model):
                 'labelFormat': 'ZPL',
                 'isTest': True,
                 'interchangeSender': '',
-                'interchangeRecipient': ''
+                'interchangeRecipient': '',
+                'hubId': '',
                 }
 
     def _roulier_geodis_validate_data(self, data):

@@ -13,6 +13,12 @@
         <field name="city">Levallois-Perret</field>
     </record>
 
+    <!-- DELIVERY CARRIER TEMPLATE OPTION -->
+    <record id="carrier_opt_tmpl_RDW" model="delivery.carrier.template.option">
+        <field name="name">On Demand</field>
+        <field name="code">RDW</field>
+    </record>
+
   <!-- DELIVERY CARRIER -->
     <record id="delivery_carrier_exp" model="delivery.carrier">
         <field name="name">Geodis Express</field>

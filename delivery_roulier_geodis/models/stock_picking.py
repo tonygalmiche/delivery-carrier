@@ -5,14 +5,15 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 import logging
-from openerp import models, api, fields
+from openerp import models, api, fields, _
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
+from openerp.exceptions import Warning as UserError
 
 from datetime import datetime, timedelta
 
 _logger = logging.getLogger(__name__)
 
-GEODIS_DEFAULT_OPTIONS = {
+GEODIS_DEFAULT_PRIORITY = {
     'MES': "3",
     'MEI': "3",
     'CXI': "1",
@@ -59,9 +60,46 @@ class StockPicking(models.Model):
             address[field] = address[field][0:35]
         return address
 
-    def _geodis_get_options(self, package):
+    def _geodis_get_priority(self, package):
         """Define options for the shippment."""
-        return GEODIS_DEFAULT_OPTIONS.get(self.carrier_code, '')
+        return GEODIS_DEFAULT_PRIORITY.get(self.carrier_code, '')
+
+    def _geodis_get_options(self, package):
+        """Compact geodis options.
+
+        Options are passed as string. it obey some custom
+        binding like RDW + AAO = AWO.
+        It should be implemented here. For the moment, only
+        one option can be passed.
+        """
+        options = self._roulier_get_options(package)
+        actives = [
+            option for option in options.keys()
+            if options[option]]
+        return actives and actives[0] or []
+
+    def _geodis_get_notifications(self, package):
+        options = self._get_options(package)
+        recipient = self._convert_address(
+            self._get_receiver(package))
+        if 'RDW' in options:
+            if recipient['email']:
+                if recipient['phone']:
+                    return 'P'
+                else:
+                    return 'M'
+            else:
+                if recipient['phone']:
+                    return 'S'
+                else:
+                    raise UserError(_(
+                        "Can't set up a rendez-vous wihout mail or tel"))
+
+    def _geodis_get_service(self, package):
+        service = self._roulier_get_service(package)
+        service['option'] = self._get_options(package)
+        service['notifications'] = self._geodis_get_notifications(package)
+        return service
 
     def _geodis_prepare_edi(self):
         """Return a list."""
@@ -77,6 +115,8 @@ class StockPicking(models.Model):
         return {
             "product": picking.carrier_code,
             "productOption": picking._get_options(None),
+            "productPriority": picking._geodis_get_priority(None),
+            "notifications": picking._geodis_get_notifications(None),
             "productTOD": GEODIS_DEFAULT_TOD[picking.carrier_code],
             "to_address": self._convert_address(
                 picking._get_receiver(None)),
