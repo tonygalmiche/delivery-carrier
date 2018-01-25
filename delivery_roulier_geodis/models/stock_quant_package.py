@@ -45,10 +45,11 @@ class StockQuantPackage(models.Model):
     def _geodis_handle_tracking(self, picking, response):
         i = 0
         for rec in self:
-			rec.write({
-				'geodis_cab': response['parcels'][i]['number'],
-				'parcel_tracking': picking.geodis_shippingid
-			})
+            rec.write({
+                'geodis_cab': response['parcels'][i]['number'],
+                'parcel_tracking': picking.geodis_shippingid
+            })
+            i += 1
 
     def _geodis_should_include_customs(self, picking):
         """Customs documents not implemented."""
