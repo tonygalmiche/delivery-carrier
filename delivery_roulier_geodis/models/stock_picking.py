@@ -168,10 +168,11 @@ class StockPicking(models.Model):
         addr = addresses[0]
         receiver = self._get_receiver(self)
         dest = self._convert_address(receiver)
-        if addr['city'].upper() != dest['city'].upper():
-            return False
-        if addr['zip'] != dest['zip']:
-            return False
+        # TODO: check address in a cleaner manner
+        # if addr['city'].upper() != dest['city'].upper():
+        #     return False
+        # if addr['zip'] != dest['zip']:
+        #    return False
         return True
 
     @api.multi
