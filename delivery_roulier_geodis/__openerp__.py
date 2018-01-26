@@ -14,6 +14,7 @@
     'depends': [
         'delivery_roulier',
         'delivery_carrier_deposit',
+        'delivery_roulier_option',
         'l10n_fr_siret',
         'base_phone', ],
 
