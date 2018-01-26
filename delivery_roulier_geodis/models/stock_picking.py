@@ -12,6 +12,15 @@ from openerp.exceptions import Warning as UserError
 from datetime import datetime, timedelta
 
 _logger = logging.getLogger(__name__)
+try:
+    from roulier import roulier
+    from roulier.exception import (
+        InvalidApiInput,
+        CarrierError
+    )
+except ImportError:
+    _logger.debug('Cannot `import roulier`.')
+
 
 GEODIS_DEFAULT_PRIORITY = {
     'MES': "3",
@@ -126,6 +135,45 @@ class StockPicking(models.Model):
             "shippingId": picking.geodis_shippingid,
             "parcels": parcels
         }
+
+    def _geodis_check_address(self):
+        # check address
+        picking = self
+        package = self.env['stock.quant.package'].create({})
+        package.carrier_id = picking.carrier_id
+        roulier_instance = roulier.get(picking.carrier_type)
+        payload = roulier_instance.api('findLocalite')
+        receiver = picking._get_receiver(self)
+        payload['auth'] = picking._get_auth(self)
+        payload['to_address'] = picking._convert_address(receiver)
+        try:
+            # api call
+            ret = roulier_instance.get(payload, 'findLocalite')
+        except InvalidApiInput as e:
+            raise UserError(package._invalid_api_input_handling(payload, e))
+        except CarrierError as e:
+            raise UserError(package._carrier_error_handling(payload, e))
+
+        # give result to someone else
+        return ret
+
+    def _geodis_ensure_address(self):
+        """Returns true if city and zip are validated by geodis."""
+        try:
+            addresses = self._geodis_check_address(self)
+        except CarrierError:
+            return False
+        if len(addresses != 1):
+            return False
+        addr = addresses[0]
+        receiver = self._get_receiver(self)
+        dest = self._convert_address(receiver)
+        # TODO: check address in a cleaner manner
+        # if addr['city'].upper() != dest['city'].upper():
+        #     return False
+        # if addr['zip'] != dest['zip']:
+        #    return False
+        return True
 
     @api.multi
     def _gen_shipping_id(self):
