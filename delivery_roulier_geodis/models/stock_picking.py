@@ -85,7 +85,7 @@ class StockPicking(models.Model):
         actives = [
             option for option in options.keys()
             if options[option]]
-        return actives and actives[0] or []
+        return actives and actives[0] or ''
 
     def _geodis_get_notifications(self, package):
         options = self._get_options(package)
