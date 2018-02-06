@@ -37,6 +37,8 @@ GEODIS_DEFAULT_TOD = {
     'EEX': 'DAP',
 }
 
+ADDRESS_ERROR_CODES = ['C0041', 'C0042', 'C0044', 'C0045', 'C0047']
+
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
@@ -136,44 +138,34 @@ class StockPicking(models.Model):
             "parcels": parcels
         }
 
-    def _geodis_check_address(self):
+    def _geodis_get_address_proposition(self, raise_address=True):
         # check address
-        picking = self
-        package = self.env['stock.quant.package'].create({})
-        package.carrier_id = picking.carrier_id
-        roulier_instance = roulier.get(picking.carrier_type)
+        self.ensure_one()
+        package = self.env['stock.quant.package'].new({})
+        package.carrier_id = self.carrier_id
+        roulier_instance = roulier.get(self.carrier_type)
         payload = roulier_instance.api('findLocalite')
-        receiver = picking._get_receiver(self)
-        payload['auth'] = picking._get_auth(self)
-        payload['to_address'] = picking._convert_address(receiver)
+        receiver = self._get_receiver(package)
+        payload['auth'] = self._get_auth(package)
+        payload['to_address'] = self._convert_address(receiver)
+        addresses = []
         try:
             # api call
-            ret = roulier_instance.get(payload, 'findLocalite')
+            addresses = roulier_instance.get(payload, 'findLocalite')
         except InvalidApiInput as e:
             raise UserError(package._invalid_api_input_handling(payload, e))
         except CarrierError as e:
-            raise UserError(package._carrier_error_handling(payload, e))
+            if (e.message and e.message[0].get('id') and not raise_address and
+                    e.message[0].get('id') in ADDRESS_ERROR_CODES):
+                return addresses
+            else:
+                raise UserError(package._carrier_error_handling(payload, e))
+        return addresses
 
-        # give result to someone else
-        return ret
-
-    def _geodis_ensure_address(self):
-        """Returns true if city and zip are validated by geodis."""
-        try:
-            addresses = self._geodis_check_address(self)
-        except CarrierError:
-            return False
-        if len(addresses != 1):
-            return False
-        addr = addresses[0]
-        receiver = self._get_receiver(self)
-        dest = self._convert_address(receiver)
-        # TODO: check address in a cleaner manner
-        # if addr['city'].upper() != dest['city'].upper():
-        #     return False
-        # if addr['zip'] != dest['zip']:
-        #    return False
-        return True
+    def _geodis_check_address(self):
+        self.ensure_one()
+        addresses = _geodis_get_address_proposition()
+        return len(addresses) == 1
 
     @api.multi
     def _gen_shipping_id(self):
