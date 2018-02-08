@@ -37,7 +37,7 @@ GEODIS_DEFAULT_TOD = {
     'EEX': 'DAP',
 }
 
-ADDRESS_ERROR_CODES = ['C0041', 'C0042', 'C0044', 'C0045', 'C0047']
+ADDRESS_ERROR_CODES = ['C0041', 'C0042', 'C0044', 'C0045', 'C0047', 'T0023']
 
 
 class StockPicking(models.Model):
