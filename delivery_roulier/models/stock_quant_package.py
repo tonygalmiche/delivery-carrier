@@ -42,7 +42,6 @@ def implemented_by_carrier(func):
         def get_carrier_type(cls, *args, **kwargs):
             if hasattr(cls, 'carrier_type'):
                 return cls.carrier_type
-            # TODO: est-ce bien utile si on carrier_id ?
             pickings = [
                 obj for obj in args
                 if getattr(obj, '_name', '') == 'stock.picking']
@@ -55,7 +54,6 @@ def implemented_by_carrier(func):
         fun = '_%s%s' % (carrier_type, fun_name)
         if not hasattr(cls, fun):
             fun = '_roulier%s' % (fun_name)
-            # return func(cls, *args, **kwargs)
         return getattr(cls, fun)(*args, **kwargs)
     return wrapper
 
@@ -65,12 +63,11 @@ class StockQuantPackage(models.Model):
 
     carrier_id = fields.Many2one("delivery.carrier", string="Carrier")
 
-    # helper : move it to base ?
     @api.multi
     def get_operations(self):
         """Get operations of the package.
 
-        Usefull for having products and quantities
+        Useful for having products and quantities
         """
         self.ensure_one()
         return self.env['stock.pack.operation'].search([
