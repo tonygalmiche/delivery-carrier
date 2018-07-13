@@ -107,9 +107,9 @@ class StockPicking(models.Model):
         # get_split_adress from partner_helper module
         streets = partner._get_split_address(3, 38)
         address['street'], address['street2'], address['street3'] = streets
-        # TODO manage in a better way if partner_firstname is installed
         address['firstName'] = '.'
         if 'partner_firstname' in self.env.registry._init_modules \
-                and partner.firstname:
+                and partner.firstname and partner.lastname:
             address['firstName'] = partner.firstname
+            address['name'] = partner.lastname
         return address
