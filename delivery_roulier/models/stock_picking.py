@@ -140,7 +140,7 @@ class StockPicking(models.Model):
         account = self._get_account(package)
         auth = {
             'login': account.login,
-            'password': account.get_password(),
+            'password': account._get_password(),
         }
         return auth
 
