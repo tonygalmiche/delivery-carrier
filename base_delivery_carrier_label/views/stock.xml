@@ -9,7 +9,8 @@
     <field name="arch" type="xml">
       <field name="state" position="before">
         <button name="action_generate_carrier_label" states="done"
-          string="Create Shipping Label" type="object"/>
+                help="Create Shipping Label 🚚"
+                string="Shipping Label 🚚" type="object"/>
       </field>
       <xpath expr="//page//field[@name='carrier_id']" position="after">
         <field name="carrier_code"/>
