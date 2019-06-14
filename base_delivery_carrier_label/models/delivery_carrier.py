@@ -18,6 +18,20 @@ class DeliveryCarrier(models.Model):
         inverse_name='carrier_id',
         string='Option',
     )
+    is_oca_carrier_module = fields.Boolean(
+        compute='_compute_oca_carrier_module', store=True)
+
+    def _compute_oca_carrier_module(self):
+        for rec in self:
+            rec.is_oca_carrier_module = False
+            if self.env.context.get('install_module'):
+                module = self.env.context['install_module']
+                if module:
+                    module = self.env['ir.module.module'].search(
+                        [('name', '=', module)])
+                    if ('base_delivery_carrier_label' in
+                            module.dependencies_id.mapped('name')):
+                        rec.is_oca_carrier_module = True
 
     @api.multi
     def default_options(self):

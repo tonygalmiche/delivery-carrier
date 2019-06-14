@@ -6,6 +6,7 @@ import base64
 import logging
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+from ..decorator import implemented_by_carrier
 
 _logger = logging.getLogger(__name__)
 
@@ -251,3 +252,67 @@ class StockPicking(models.Model):
                   'Please delete the existing labels in the '
                   'attachments of this picking and try again')
                 % self.name)
+
+    def open_website_url(self):
+        """Open tracking page.
+
+        More than 1 tracking number: display a list of packages
+        Else open directly the tracking page
+        """
+        self.ensure_one()
+        if not self._is_oca_carrier():
+            return super().open_website_url()
+
+        packages = self._get_packages_from_picking()
+        if len(packages) in (0, False, 1):
+            return super().open_website_url()  # shortpath
+
+        # display a list of pickings
+        action = self.env.ref('stock.action_package_view').read()[0]
+        action['res_id'] = packages.ids
+        action['domain'] = "[('id', 'in', [%s])]" % (
+            ",".join(map(str, packages.ids))
+        )
+        action['context'] = "{'picking_id': %s }" % str(self.id)
+        return action
+
+    # Implementations for base_delivery_carrier_label
+    def _is_oca_carrier(self):
+        """ rtype bool: True if 'base_delivery_carrier_label'
+                        is a dependency of your carrier module
+                        False else
+        """
+        self.ensure_one()
+        return self.carrier_id.is_oca_carrier_module
+
+
+class StockPickingApi(models.Model):
+    _inherit = 'stock.picking'
+
+    @implemented_by_carrier
+    def _get_sender(self, package):
+        pass
+
+    @implemented_by_carrier
+    def _get_receiver(self, package):
+        pass
+
+    @implemented_by_carrier
+    def _get_shipping_date(self, package):
+        pass
+
+    @implemented_by_carrier
+    def _get_account(self, package):
+        pass
+
+    @implemented_by_carrier
+    def _get_auth(self, package):
+        pass
+
+    @implemented_by_carrier
+    def _get_service(self, package):
+        pass
+
+    @implemented_by_carrier
+    def _convert_address(self, partner):
+        pass
