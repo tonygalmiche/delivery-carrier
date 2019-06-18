@@ -2,9 +2,11 @@
 # Copyright 2016 Camptocamp SA
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
+import logging
+from collections import defaultdict
+
 from odoo import api, fields, models
 import odoo.addons.decimal_precision as dp
-import logging
 
 _logger = logging.getLogger(__name__)
 
@@ -48,3 +50,54 @@ class StockMoveLine(models.Model):
         if cant_calc_total:
             return False
         return total_weight
+
+    @api.model
+    def _update_picking_package(self, package_ids):
+        packages = self.env['stock.quant.package'].browse(package_ids)
+        pack_pick = packages._get_pickings_from_packages()
+        for pack in packages:
+            if not pack_pick.get(pack.id):
+                ''
+
+    @api.model
+    def create(self, vals):
+        res = super().create(vals)
+        package_ids = [vals.get('package_id'), vals.get('result_package_id')]
+        self._update_picking_package(package_ids)
+        return res
+
+    @api.multi
+    def write(self, vals):
+        res = super().write(vals)
+        package_ids = []
+        for rec in self:
+            package_ids.append(rec.package_id.id or vals.get('package_id'))
+            package_ids.append(rec.result_package_id.id or vals.get(
+                'result_package_id'))
+        self._update_picking_package(self, package_ids)
+        return res
+
+    @api.multi
+    def unlink(self):
+        package_ids = [x.result_package_id or x.package_id for x in self]
+        res = super().write()
+        self._update_picking_package(package_ids)
+        return res
+
+
+class StockQuantPackage(models.Model):
+    _inherit = 'stock.quant.package'
+
+    @api.multi
+    def _get_pickings_from_packages(self):
+        """ Get all pickings from package """
+        mapping = defaultdict(list)
+        move_lines = self.env['stock.move.line'].search(
+            ['|',
+             ('package_id', 'in', self.ids),
+             ('result_package_id', 'in', self.ids),
+             ('picking_id.picking_type_id.code', '=', 'outgoing')])
+        for line in move_lines:
+            mapping[line.result_package_id or line.package_id].append(
+                line.picking_id)
+        return mapping

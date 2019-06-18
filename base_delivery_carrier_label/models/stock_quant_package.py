@@ -2,8 +2,14 @@
 # Copyright 2014-2016 Camptocamp SA
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo import api, fields, models
+import logging
+
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 import odoo.addons.decimal_precision as dp
+from .redirect import redirect
+
+_logger = logging.getLogger(__name__)
 
 
 class StockQuantPackage(models.Model):
@@ -11,13 +17,11 @@ class StockQuantPackage(models.Model):
 
     parcel_tracking = fields.Char(string='Parcel Tracking')
     parcel_tracking_uri = fields.Char(
-        help="Link to the carrier's tracking page for this package.",
-    )
+        help="Link to the carrier's tracking page for this package.")
     total_weight = fields.Float(
         digits=dp.get_precision('Stock Weight'),
         help="Total weight of the package in kg, including the "
-             "weight of the logistic unit."
-    )
+             "weight of the logistic unit.")
 
     @api.depends('total_weight')
     def _compute_weight(self):
@@ -58,3 +62,37 @@ class StockQuantPackage(models.Model):
             if pack.weight:
                 res[pack.id] += ' %s kg' % pack.weight
         return res
+
+    @api.multi
+    def open_website_url(self):
+        """Open website for parcel tracking.
+        Each carrier should implement _get_tracking_link
+        There is low chance you need to override this method.
+        returns:
+            action
+        """
+        self.ensure_one()
+        if not self.parcel_tracking:
+            raise UserError(
+                _("Cannot open tracking URL for this carrier "
+                  "because this package "
+                  "doesn't have a tracking number."))
+        return {
+            'type': 'ir.actions.act_url',
+            'name': "Shipment Tracking Page",
+            'target': 'new',
+            'url': self._get_tracking_link(),
+        }
+
+    def _get_tracking_link(self):
+        """Build a tracking url.
+        You have to implement it for your carrier.
+        It's like :
+            'https://the-carrier.com/?track=%s' % self.parcel_tracking
+        returns:
+            string (url)
+        """
+        redirect(self, '_get_tracking_link')
+
+    # def _prepare_label(self, label, picking):
+    #     redirect(self, '_prepare_label', picking=picking)

@@ -6,6 +6,7 @@ import base64
 import logging
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+from .redirect import redirect
 
 _logger = logging.getLogger(__name__)
 
@@ -39,8 +40,20 @@ class StockPicking(models.Model):
         raise NotImplementedError(_('No label is configured for the '
                                     'selected delivery method.'))
 
-    def generate_shipping_labels(self):
-        """Generate a shipping label by default
+    def _generate_shipping_labels(self):
+        """ Implement your own method for your carrier
+
+            i.e. If my carrier is TNT, then I can implement
+
+                `def _tnt_generate_shipping_labels(self):`
+
+                    res = self._oca_generate_shipping_labels()
+                    # is the same as super on base_delivery_carrier_label
+                    # but with no interference with others carriers modules
+
+                    self.do_what_you_want(res)
+
+        Generate a shipping label by default
 
         This method can be inherited to create specific shipping labels
         a list of label must be return as we can have multiple
@@ -55,13 +68,15 @@ class StockPicking(models.Model):
 
         """
         self.ensure_one()
-        default_label = self.generate_default_label()
-        labels = []
-        for package in self._get_packages_from_picking():
-            pack_label = default_label.copy()
-            pack_label['tracking_number'] = package.id
-            labels.append(pack_label)
-        return labels
+        res = redirect(self, '_generate_shipping_labels')
+        if not res:
+            default_label = self.generate_default_label()
+            labels = []
+            for package in self._get_packages_from_picking():
+                pack_label = default_label.copy()
+                pack_label['tracking_number'] = package.id
+                labels.append(pack_label)
+            return labels
 
     def get_shipping_label_values(self, label):
         self.ensure_one()
@@ -91,7 +106,8 @@ class StockPicking(models.Model):
             move_lines = picking.move_line_ids.filtered(
                 lambda s: not (s.package_id or s.result_package_id))
             if move_lines:
-                package = self.env['stock.quant.package'].create({})
+                package = self.env['stock.quant.package'].create(
+                    {'picking_id': picking.id})
                 move_lines.write({'result_package_id': package.id})
 
     def action_generate_carrier_label(self):
@@ -103,7 +119,7 @@ class StockPicking(models.Model):
         """
         for pick in self:
             pick._set_a_default_package()
-            shipping_labels = pick.generate_shipping_labels()
+            shipping_labels = pick._generate_shipping_labels()
             for label in shipping_labels:
                 data = pick.get_shipping_label_values(label)
                 if label.get('package_id'):
@@ -180,18 +196,17 @@ class StockPicking(models.Model):
     def _get_packages_from_picking(self):
         """ Get all the packages from the picking """
         self.ensure_one()
-        operation_obj = self.env['stock.move.line']
         packages = self.env['stock.quant.package'].browse()
-        operations = operation_obj.search(
+        move_lines = self.env['stock.move.line'].search(
             ['|',
              ('package_id', '!=', False),
              ('result_package_id', '!=', False),
              ('picking_id', '=', self.id)]
         )
-        for operation in operations:
+        for line in move_lines:
             # Take the destination package. If empty, the package is
             # moved so take the source one.
-            packages |= operation.result_package_id or operation.package_id
+            packages |= line.result_package_id or line.package_id
         return packages
 
     @api.multi
@@ -251,3 +266,37 @@ class StockPicking(models.Model):
                   'Please delete the existing labels in the '
                   'attachments of this picking and try again')
                 % self.name)
+
+    def open_website_url(self):
+        """Open tracking page.
+
+        More than 1 tracking number: display a list of packages
+        Else open directly the tracking page
+        """
+        self.ensure_one()
+        if not self._is_oca_carrier():
+            return super().open_website_url()
+
+        packages = self._get_packages_from_picking()
+        if len(packages) in (0, False, 1):
+            return super().open_website_url()  # shortpath
+
+        # display a list of packages
+        action = self.env.ref('stock.action_package_view').read()[0]
+        action['res_id'] = packages.ids
+        action['domain'] = "[('id', 'in', [%s])]" % (
+            ",".join(map(str, packages.ids))
+        )
+        action['context'] = "{'picking_id': %s }" % str(self.id)
+        return action
+
+    def _is_oca_carrier(self):
+        """ We have a different behavior if the carrier is defined
+            with the help base_delivery_carrier_label
+
+            rtype bool: True if 'base_delivery_carrier_label'
+                        is a dependency of your carrier module
+                        False else
+        """
+        self.ensure_one()
+        return self.carrier_id.is_oca_carrier_module
