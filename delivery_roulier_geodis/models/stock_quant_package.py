@@ -58,5 +58,4 @@ class StockQuantPackage(models.Model):
     def _geodis_carrier_error_handling(self, payload, exception):
         pay = payload
         pay['auth']['password'] = '****'
-        return _(u'Sent data:\n%s\n\nException raised:\n%s\n' % (
-            pay, exception.message))
+        return self._roulier_carrier_error_handling(payload, exception)
