@@ -4,7 +4,7 @@ from base64 import b64encode
 import logging
 from datetime import datetime
 
-from openerp import models
+from openerp import models, fields, api
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 from openerp.tools.translate import _
 from openerp.exceptions import UserError

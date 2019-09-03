@@ -15,7 +15,9 @@ class AccountProduct(models.Model):
     _inherit = 'keychain.account'
 
     namespace = fields.Selection(
-        selection_add=[('roulier_geodis', 'Geodis')])
+        selection_add=[
+            ('roulier_geodis', 'Geodis'),
+            ('roulier_geodis_tracking', 'Geodis Tracking')])
 
     def _roulier_geodis_init_data(self):
         return {'agencyId': '',

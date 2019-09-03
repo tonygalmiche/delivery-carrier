@@ -15,6 +15,7 @@ class StockQuantPackage(models.Model):
     _inherit = 'stock.quant.package'
 
     geodis_cab = fields.Char(help="Barcode of the label")
+    geodis_tracking_url = fields.Char(help="Public url for parcel tracking")
 
     @api.multi
     def _geodis_generate_labels(self, picking):
@@ -59,3 +60,6 @@ class StockQuantPackage(models.Model):
         pay = payload
         pay['auth']['password'] = '****'
         return self._roulier_carrier_error_handling(payload, exception)
+
+    def _get_tracking_link(self):
+        return self.geodis_tracking_url

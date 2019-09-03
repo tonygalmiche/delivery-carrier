@@ -7,4 +7,11 @@
         <field name="technical_name">geodis_logistique</field>
     </record>
 </data>
+<data>
+    <record id="keychain_geodis_tracking" model="keychain.account">
+        <field name="name">Geodis traking</field>
+        <field name="namespace">roulier_geodis_tracking</field>
+        <field name="technical_name">Parcel Tracking</field>
+    </record>
+</data>
 </openerp>
