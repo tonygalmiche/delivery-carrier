@@ -188,3 +188,63 @@ class StockPicking(models.Model):
                 picking.geodis_shippingid or gen_id()
             )
         return True
+
+    def _geodis_update_tracking(self):
+        geo = roulier.get('geodis')
+        for rec in self:
+            packages = self._get_packages_from_picking()
+            account = rec._geodis_get_auth_tracking(packages)
+            payload = {
+                'auth': account,
+                'service': {
+                    'shippingId': rec.geodis_shippingid
+                }
+            }
+
+            ret = geo.get_tracking_list(payload)
+
+            if len(ret) != 1:
+                _logger.warning(
+                    'Geodis tracking not found. Picking %s' % rec.id)
+                continue
+            # multipack not implemented yet
+            data = ret[0]
+
+            for pack in packages:
+                # status,
+                # proofUrl
+                pack.geodis_tracking_url = data['tracking']['publicUrl']
+                pack.parcel_tracking = data['tracking']['trackingCode']
+
+    def _geodis_get_auth_tracking(self, packages):
+        """Because it's not the same credentials than
+        get_label."""
+
+        account = self._geodis_get_account_tracking(packages)
+        auth = {
+            'login': account.login,
+            'password': account._get_password(),
+        }
+        return auth
+
+    def _geodis_get_account_tracking(self, package):
+        """Return an 'account'.
+
+        By default, the first account encoutered for this type.
+        Depending on your case, you may store it on the picking or
+        compute it from your business rules.
+
+        Accounts are resolved at runtime (can be != for dev/prod)
+
+
+        We have namespace = roulier_geodis for get_label
+        and roulier_geodis_tracking only for tracking
+        """
+        keychain = self.env['keychain.account']
+        if self.env.user.has_group('stock.group_stock_user'):
+            retrieve = keychain.suspend_security().retrieve
+        else:
+            retrieve = keychain.retrieve
+        accounts = retrieve(
+            [['namespace', '=', "roulier_geodis_tracking"]])
+        return accounts[0]
