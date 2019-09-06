@@ -29,5 +29,13 @@ class AccountProduct(models.Model):
                 'hubId': '',
                 }
 
+    # dummy methods to be compatible with keychain...
+    # This will be gone on migration
     def _roulier_geodis_validate_data(self, data):
+        return True
+
+    def _roulier_geodis_tracking_init_data(self):
+        return {}
+
+    def _roulier_geodis_tracking_validate_data(self, data):
         return True

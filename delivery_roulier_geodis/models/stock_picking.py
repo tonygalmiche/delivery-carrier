@@ -164,7 +164,7 @@ class StockPicking(models.Model):
 
     def _geodis_check_address(self):
         self.ensure_one()
-        addresses = _geodis_get_address_proposition()
+        addresses = self._geodis_get_address_proposition()
         return len(addresses) == 1
 
     @api.multi
@@ -191,6 +191,7 @@ class StockPicking(models.Model):
 
     def _geodis_update_tracking(self):
         geo = roulier.get('geodis')
+        success_pickings = self.env['stock.picking']
         for rec in self:
             packages = self._get_packages_from_picking()
             account = rec._geodis_get_auth_tracking(packages)
@@ -209,12 +210,12 @@ class StockPicking(models.Model):
                 continue
             # multipack not implemented yet
             data = ret[0]
-
-            for pack in packages:
-                # status,
-                # proofUrl
-                pack.geodis_tracking_url = data['tracking']['publicUrl']
-                pack.parcel_tracking = data['tracking']['trackingCode']
+            packages.write({
+                'geodis_tracking_url': data['tracking']['publicUrl'],
+                'parcel_tracking': data['tracking']['trackingCode'],
+            })
+            success_pickings |= rec
+        return success_pickings
 
     def _geodis_get_auth_tracking(self, packages):
         """Because it's not the same credentials than
