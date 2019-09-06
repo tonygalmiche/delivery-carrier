@@ -61,5 +61,5 @@ class StockQuantPackage(models.Model):
         pay['auth']['password'] = '****'
         return self._roulier_carrier_error_handling(payload, exception)
 
-    def _get_tracking_link(self):
+    def _geodis_get_tracking_link(self):
         return self.geodis_tracking_url
