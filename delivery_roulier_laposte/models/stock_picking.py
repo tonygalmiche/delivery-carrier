@@ -1,4 +1,3 @@
-# coding: utf-8
 #  @author Raphael Reverdy <raphael.reverdy@akretion.com>
 #          David BEAL <david.beal@akretion.com>
 #          Sébastien BEAU
@@ -23,37 +22,52 @@ class StockPicking(models.Model):
             ('75000', 'Assurance 750 €'), ('90000', 'Assurance 900 €'),
             ('105000', 'Assurance 1050 €'), ('120000', 'Assurance 1200 €'),
             ('135000', 'Assurance 1350 €'), ('150000', 'Assurance 1500 €'),
-        ], string=u"Assurance",
-        help=u"Paramètre incompatible avec le paramètre Recommandé")
+        ], string="Assurance",
+        help="Paramètre incompatible avec le paramètre Recommandé")
     laposte_recommande = fields.Selection(
         selection=[
             ('R1', 'Recommendation R1'), ('R2', 'Recommendation R2'),
             ('R3', 'Recommendation R3'),
-        ], string=u"Recommandé",
-        help=u"Paramètre incompatible avec le paramètre Assurance")
+        ], string="Recommandé",
+        help="Paramètre incompatible avec le paramètre Assurance")
+    display_insurance = fields.Boolean(
+        compute='_compute_check_options',
+        string="Define a condition to display/hide your custom Insurance"
+               "field with a dedicated view")
+
+    @api.multi
+    @api.depends('option_ids')
+    def _compute_check_options(self):
+        insurance_opt = self.env.ref(
+            'delivery_roulier_option.carrier_opt_tmpl_INS', False)
+        for rec in self:
+            if insurance_opt in [x.tmpl_option_id for x in rec.option_ids]:
+                rec.display_insurance = True
+            else:
+                rec.display_insurance = False
+                _logger.info("Picking %s display_insurance=%s",
+                             rec.name, rec.display_insurance)
 
     @api.constrains('laposte_recommande', 'laposte_insurance')
     def _laposte_check_insurance(self):
         for rec in self:
             if rec.laposte_recommande and rec.laposte_insurance:
-                raise(u"Les paramètres 'recommandé' et 'assurance' "
-                      u"sont incompatibles.")
+                raise("Les paramètres 'recommandé' et 'assurance' "
+                      "sont incompatibles.")
             if rec.laposte_recommande and \
                     rec.partner_id.country_id != self.env.ref('base.fr'):
-                message = (u"Le paramètre 'recommandé' est restreint "
-                           u"aux destinations France")
+                message = ("Le paramètre 'recommandé' est restreint "
+                           "aux destinations France")
                 raise UserError(message)
 
-    def _laposte_get_shipping_date(self, package_id):
+    def _laposte_get_shipping_date(self, package_id=None):
         """Estimate shipping date."""
         self.ensure_one()
 
-        shipping_date = self.min_date
         if self.date_done:
             shipping_date = self.date_done
-
-        shipping_date = datetime.strptime(
-            shipping_date, DEFAULT_SERVER_DATETIME_FORMAT)
+        else:
+            shipping_date = self.min_date
 
         tomorrow = datetime.now() + timedelta(1)
         if shipping_date < tomorrow:
@@ -113,3 +127,18 @@ class StockPicking(models.Model):
             address['firstName'] = partner.firstname
             address['name'] = partner.lastname
         return address
+
+    def _laposte_get_service(self, account, package=None):
+        vals = self._roulier_get_service(account, package=package)
+
+        def calc_package_price():
+            return sum(
+                [op.product_id.list_price * op.product_qty
+                    for op in package.get_operations()]
+            )
+        vals['totalAmount'] = '%.f' % (  # truncate to string
+            calc_package_price() * 100  # totalAmount is in centimes
+        )
+        vals['returnTypeChoice'] = 3  # do not return to sender
+        return vals
+

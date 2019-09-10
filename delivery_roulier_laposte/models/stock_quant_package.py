@@ -1,4 +1,3 @@
-# coding: utf-8
 #  @author Raphael Reverdy <raphael.reverdy@akretion.com>
 #          David BEAL <david.beal@akretion.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
@@ -27,23 +26,17 @@ CUSTOMS_MAP = {
 class StockQuantPackage(models.Model):
     _inherit = 'stock.quant.package'
 
-    def _laposte_before_call(self, picking, request):
-        def calc_package_price():
-            return sum(
-                [op.product_id.list_price * op.product_qty
-                    for op in self.get_operations()]
-            )
-        # TODO _get_options is called fo each package by the result
-        # is the same. Should be store after first call
-        request['parcels'][0].update(picking._laposte_get_options(self))
-        if request['parcels'][0].get('COD'):
-            request['parcels'][0]['codAmount'] = self._get_cash_on_delivery(
-                picking)
-        request['service']['totalAmount'] = '%.f' % (  # truncate to string
-            calc_package_price() * 100  # totalAmount is in centimes
-        )
-        request['service']['returnTypeChoice'] = 3  # do not return to sender
-        return request
+    def _laposte_before_call(self, picking, payload):
+        if self._should_include_customs(picking):
+            payload['customs'] = self._get_customs(picking)
+        return payload
+
+    def _laposte_get_parcel(self, picking):
+        vals = self._roulier_get_parcel(picking)
+        vals.update(picking._laposte_get_options(self))
+        if vals.get('COD'):
+            vals['codAmount'] = self._get_cash_on_delivery(picking)
+        return vals
 
     @api.multi
     def _laposte_get_customs(self, picking):
@@ -86,10 +79,10 @@ class StockQuantPackage(models.Model):
         response = exception.message
         # on met des clés plus explicites vis à vis des objets odoo
         suffix = (
-            u"\nSignification des clés dans le contexte Odoo:\n"
-            u"- 'to_address' : adresse du destinataire (votre client)\n"
-            u"- 'from_address' : adresse de l'expéditeur (vous)")
-        message = u'Données transmises:\n%s\n\nExceptions levées%s\n%s' % (
+            "\nSignification des clés dans le contexte Odoo:\n"
+            "- 'to_address' : adresse du destinataire (votre client)\n"
+            "- 'from_address' : adresse de l'expéditeur (vous)")
+        message = 'Données transmises:\n%s\n\nExceptions levées%s\n%s' % (
             payload, response, suffix)
         return message
 
@@ -97,7 +90,7 @@ class StockQuantPackage(models.Model):
         response = exception.response
         request = response.request.body
 
-        if self._uid > 1:
+        if self._uid > 2:
             # rm pwd from dict and xml
             payload['auth']['password'] = '****'
             request = '%s<password>****%s' % (
@@ -109,42 +102,42 @@ class StockQuantPackage(models.Model):
         # on contextualise les réponses ws aux objets Odoo
         map_responses = {
             30204:
-                u"La 2eme ligne d'adresse du client partenaire "
-                u"est vide ou invalide",
+                "La 2eme ligne d'adresse du client partenaire "
+                "est vide ou invalide",
             30221:
-                u"Le telephone du client ne doit comporter que des "
-                u"chiffres ou le symbole +: convertissez tous vos N° de "
-                u"telephone au format standard a partir du menu suivant:\n"
-                u"Configuration > Technique > Telephonie > Reformate "
-                u"les numeros de telephone ",
+                "Le telephone du client ne doit comporter que des "
+                "chiffres ou le symbole +: convertissez tous vos N° de "
+                "telephone au format standard a partir du menu suivant:\n"
+                "Configuration > Technique > Telephonie > Reformate "
+                "les numeros de telephone ",
             30100:
-                u"La seconde ligne d'adresse de l'expéditeur est "
-                u"vide ou invalide.",
+                "La seconde ligne d'adresse de l'expéditeur est "
+                "vide ou invalide.",
         }
 
         def format_one_exception(message, map_responses):
             param_message = {
                 'ws_exception':
-                    u'%s\n' % message['message'],
-                'resolution': u''}
+                    '%s\n' % message['message'],
+                'resolution': ''}
             if message and message.get('id') in map_responses.keys():
                 param_message['resolution'] = _(
-                    u"Résolution\n-------------\n%s" %
+                    "Résolution\n-------------\n%s" %
                     map_responses[message['id']]
                 )
-            return _(u"Réponse de Laposte:\n"
-                     u"%(ws_exception)s\n%(resolution)s"
+            return _("Réponse de Laposte:\n"
+                     "%(ws_exception)s\n%(resolution)s"
                      % param_message)
 
         parts = []
-        for messages in exception:
+        for messages in exception.args:
             for message in messages:
                 parts.append(format_one_exception(message, map_responses))
 
-        ret_mess = _(u"Incident\n-----------\n%s\n"
-                     u"Données transmises:\n"
-                     u"-----------------------------\n%s\n\nWS: %s") % (
-            u'\n'.join(parts), request.decode('utf-8'), LAPOSTE_WS)
+        ret_mess = _("Incident\n-----------\n%s\n"
+                     "Données transmises:\n"
+                     "-----------------------------\n%s\n\nWS: %s") % (
+            '\n'.join(parts), request.decode('utf-8'), LAPOSTE_WS)
         return ret_mess
 
     def _laposte_get_tracking_link(self):
