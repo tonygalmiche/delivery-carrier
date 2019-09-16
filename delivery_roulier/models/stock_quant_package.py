@@ -115,6 +115,7 @@ class StockQuantPackage(models.Model):
             'file_type': label.get('type')
         }
 
+    # TODO move near _roulier_get_parcel()
     def _roulier_get_parcels(self, picking):
         # by default, only one pack per call
         self.ensure_one()
@@ -170,13 +171,15 @@ class StockQuantPackage(models.Model):
         return self._after_call(picking, ret)
 
     # default implementations
-    def _roulier_get_parcel(self, picking):
+    def _roulier_get_parcel(self, picking, pack_number=None):
         self.ensure_one()
         weight = self.shipping_weight or self.weight
         parcel = {
             'weight': weight,
             'reference': self.name
         }
+        if pack_number:
+            parcel["parcel_number"] = pack_number
         return parcel
 
     def _roulier_before_call(self, picking, payload):
