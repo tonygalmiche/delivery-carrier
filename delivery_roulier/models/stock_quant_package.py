@@ -157,6 +157,10 @@ class StockQuantPackage(models.Model):
         """
         self.ensure_one()
         url = self._get_tracking_link()
+        if not url:
+            raise UserError(
+                _('No tracking url defined. Maybe the tracking number is not '
+                  'available yet'))
         client_action = {
             'type': 'ir.actions.act_url',
             'name': "Shipment Tracking Page",
