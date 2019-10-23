@@ -111,7 +111,7 @@ class StockPicking(models.Model):
         """
         self.ensure_one()
         domain = [
-            ("name", "=", self.carrier_id.delivery_type),
+            ("delivery_type", "=", self.carrier_id.delivery_type),
             "|",
             ("company_id", "=", self.company_id.id),
             ("company_id", "=", False)
