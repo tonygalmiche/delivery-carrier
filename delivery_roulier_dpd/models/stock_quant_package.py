@@ -42,6 +42,12 @@ class StockQuantPackage(models.Model):
             "senderAddressId": service["senderAddressId"],
             "senderZipCode": service["senderZipCode"],
         })
+
+        if picking.carrier_code == "DPD RELAIS":
+            # deprecated
+            req['service']['parcelShopId'] = \
+                self._dpd_fr_parcelshopid(picking)
+
         return req
 
 
@@ -51,7 +57,9 @@ class StockQuantPackage(models.Model):
         return ''  # like P22895 TODO implement this
 
     @api.multi
-    def _dpd_fr_dropoff_site(self, picking):
+    def _dpd_fr_parcelshopid(self, picking):
+        # dropoff site = pacelshopid
+        # = pickup point = point relais
         return ''  # like P22895 TODO implement this
 
     def _dpd_should_include_customs(self, picking):

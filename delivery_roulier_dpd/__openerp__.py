@@ -11,7 +11,6 @@
     'category': 'Warehouse',
     'depends': [
         'delivery_roulier',
-        'partner_firstname',
     ],
     'website': 'http://www.akretion.com/',
     'data': [
