@@ -51,6 +51,9 @@ class StockPicking(models.Model):
                 and partner.firstname and not partner.is_company:
             address['firstName'] = partner.firstname
             address['name'] = partner.lastname
+        else:
+            address['firstName'] = ' '
+            address['name'] = partner.name
         if partner.commercial_partner_id.is_company:
             address['company'] = partner.commercial_partner_id.name
 
