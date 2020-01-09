@@ -76,7 +76,7 @@
     </record>
 
     <record id="delivery_carrier_dpd_fr_Predict" model="delivery.carrier">
-        <field name="name">DPD Predict max 20kg</field>
+        <field name="name">DPD FR Predict max 20kg</field>
         <field name="default_code">DPD PREDICT</field>
         <field name="code">DPD PREDICT</field>
         <field name="carrier_type">dpd_fr</field>
