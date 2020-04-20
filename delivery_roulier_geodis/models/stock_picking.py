@@ -148,6 +148,9 @@ class StockPicking(models.Model):
         receiver = self._get_receiver(package)
         payload['auth'] = self._get_auth(package)
         payload['to_address'] = self._convert_address(receiver)
+        account = self._get_account(self)
+        service = account.get_data()
+        payload['service'] = {'is_test': service.get('isTest', False)}
         addresses = []
         try:
             # api call
