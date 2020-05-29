@@ -9,4 +9,4 @@ class DeliveryCarrier(models.Model):
     _inherit = 'delivery.carrier'
 
     delivery_type = fields.Selection(
-        selection_add=[('laposte', 'Laposte')])
+        selection_add=[('laposte_fr', 'Laposte')])

@@ -49,7 +49,7 @@ class StockPicking(models.Model):
                              rec.name, rec.display_insurance)
 
     @api.constrains('laposte_recommande', 'laposte_insurance')
-    def _laposte_check_insurance(self):
+    def _laposte_fr_check_insurance(self):
         for rec in self:
             if rec.laposte_recommande and rec.laposte_insurance:
                 raise("Les paramètres 'recommandé' et 'assurance' "
@@ -60,7 +60,7 @@ class StockPicking(models.Model):
                            "aux destinations France")
                 raise UserError(message)
 
-    def _laposte_get_shipping_date(self, package_id=None):
+    def _laposte_fr_get_shipping_date(self, package_id=None):
         """Estimate shipping date."""
         self.ensure_one()
 
@@ -77,7 +77,7 @@ class StockPicking(models.Model):
         return shipping_date.strftime('%Y-%m-%d')
 
     @api.model
-    def _laposte_map_options(self):
+    def _laposte_fr_map_options(self):
         return {
             'NM': 'nonMachinable',
             'FCR': 'ftd',
@@ -86,7 +86,7 @@ class StockPicking(models.Model):
         }
 
     @api.multi
-    def _laposte_get_options(self, package):
+    def _laposte_fr_get_options(self, package):
         """Define options for the shippment.
 
         Like insurance, cash on delivery...
@@ -109,7 +109,7 @@ class StockPicking(models.Model):
 
     # helpers
     @api.model
-    def _laposte_convert_address(self, partner):
+    def _laposte_fr_convert_address(self, partner):
         """Convert a partner to an address for roulier.
 
         params:
@@ -128,17 +128,9 @@ class StockPicking(models.Model):
             address['name'] = partner.lastname
         return address
 
-    def _laposte_get_service(self, account, package=None):
+    def _laposte_fr_get_service(self, account, package=None):
         vals = self._roulier_get_service(account, package=package)
 
-        def calc_package_price():
-            return sum(
-                [op.product_id.list_price * op.product_qty
-                    for op in package.get_operations()]
-            )
-        vals['totalAmount'] = '%.f' % (  # truncate to string
-            calc_package_price() * 100  # totalAmount is in centimes
-        )
         vals['returnTypeChoice'] = 3  # do not return to sender
         return vals
 

@@ -26,20 +26,28 @@ CUSTOMS_MAP = {
 class StockQuantPackage(models.Model):
     _inherit = 'stock.quant.package'
 
-    def _laposte_before_call(self, picking, payload):
+    def _laposte_fr_before_call(self, picking, payload):
         if self._should_include_customs(picking):
             payload['customs'] = self._get_customs(picking)
         return payload
 
-    def _laposte_get_parcel(self, picking):
+    def _laposte_fr_get_parcel(self, picking):
         vals = self._roulier_get_parcel(picking)
-        vals.update(picking._laposte_get_options(self))
+        def calc_package_price():
+            return sum(
+                [op.product_id.list_price * op.product_qty
+                    for op in self.get_operations()]
+            )
+        vals['totalAmount'] = '%.f' % (  # truncate to string
+            calc_package_price() * 100  # totalAmount is in centimes
+        )
+        vals.update(picking._laposte_fr_get_options(self))
         if vals.get('COD'):
             vals['codAmount'] = self._get_cash_on_delivery(picking)
         return vals
 
     @api.multi
-    def _laposte_get_customs(self, picking):
+    def _laposte_fr_get_customs(self, picking):
         """ see _roulier_get_customs() docstring
         """
         customs = self._roulier_get_customs(picking)
@@ -47,7 +55,7 @@ class StockQuantPackage(models.Model):
         return customs
 
     @api.multi
-    def _laposte_should_include_customs(self, picking):
+    def _laposte_fr_should_include_customs(self, picking):
         """Choose if customs infos should be included in the WS call.
 
         Return bool
@@ -74,10 +82,9 @@ class StockQuantPackage(models.Model):
             return True
 
     @api.model
-    def _laposte_invalid_api_input_handling(self, payload, exception):
+    def _laposte_fr_invalid_api_input_handling(self, payload, exception):
         payload['auth']['password'] = '****'
-        response = exception.message
-        # on met des clés plus explicites vis à vis des objets odoo
+        response = str(exception)
         suffix = (
             "\nSignification des clés dans le contexte Odoo:\n"
             "- 'to_address' : adresse du destinataire (votre client)\n"
@@ -86,7 +93,7 @@ class StockQuantPackage(models.Model):
             payload, response, suffix)
         return message
 
-    def _laposte_carrier_error_handling(self, payload, exception):
+    def _laposte_fr_carrier_error_handling(self, payload, exception):
         response = exception.response
         request = response.request.body
 
@@ -140,7 +147,7 @@ class StockQuantPackage(models.Model):
             '\n'.join(parts), request.decode('utf-8'), LAPOSTE_WS)
         return ret_mess
 
-    def _laposte_get_tracking_link(self):
+    def _laposte_fr_get_tracking_link(self):
         return (
             "https://www.colissimo.fr/"
             "portail_colissimo/suivreResultat.do?"

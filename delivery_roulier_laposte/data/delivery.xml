@@ -18,7 +18,7 @@
     <record id="delivery_carrier_DOM" model="delivery.carrier">
         <field name="name">Colissimo Domicile (FR + Europe)</field>
         <field name="code">DOM</field>
-        <field name="delivery_type">laposte</field>
+        <field name="delivery_type">laposte_fr</field>
         <field name="product_id" ref="laposte_product"/>
     </record>
     <record id="DOM_laposte_carrier_opt_tmpl_NM"
@@ -32,7 +32,7 @@
 
     <record id="delivery_carrier_DOS" model="delivery.carrier">
         <field name="name">Colissimo Domicile sign. (FR + Europe)</field>
-        <field name="delivery_type">laposte</field>
+        <field name="delivery_type">laposte_fr</field>
         <field name="code">DOS</field>
         <field name="product_id" ref="laposte_product"/>
     </record>
@@ -74,7 +74,7 @@
 
     <record id="delivery_carrier_CORE" model="delivery.carrier">
         <field name="name">Colissimo Retour France</field>
-        <field name="delivery_type">laposte</field>
+        <field name="delivery_type">laposte_fr</field>
         <field name="code">CORE</field>
         <field name="product_id" ref="laposte_product"/>
     </record>
@@ -97,7 +97,7 @@
 
     <record id="delivery_carrier_COM" model="delivery.carrier">
         <field name="name">Colissimo Domicile Outre-Mer</field>
-        <field name="delivery_type">laposte</field>
+        <field name="delivery_type">laposte_fr</field>
         <field name="code">COM</field>
         <field name="product_id" ref="laposte_product"/>
     </record>
@@ -120,7 +120,7 @@
 
     <record id="delivery_carrier_CDS" model="delivery.carrier">
         <field name="name">Colissimo Domicile Outre-Mer sign.</field>
-        <field name="delivery_type">laposte</field>
+        <field name="delivery_type">laposte_fr</field>
         <field name="code">CDS</field>
         <field name="product_id" ref="laposte_product"/>
     </record>
@@ -159,7 +159,7 @@
 
     <record id="delivery_carrier_CORI" model="delivery.carrier">
         <field name="name">Colissimo Retour International</field>
-        <field name="delivery_type">laposte</field>
+        <field name="delivery_type">laposte_fr</field>
         <field name="code">CORI</field>
         <field name="product_id" ref="laposte_product"/>
     </record>
@@ -189,7 +189,7 @@
 
     <record id="delivery_carrier_COLI" model="delivery.carrier">
         <field name="name">Colissimo Expert International</field>
-        <field name="delivery_type">laposte</field>
+        <field name="delivery_type">laposte_fr</field>
         <field name="code">COLI</field>
         <field name="product_id" ref="laposte_product"/>
     </record>
