@@ -7,4 +7,4 @@ class DeliveryCarrier(models.Model):
     _inherit = 'delivery.carrier'
 
     delivery_type = fields.Selection(
-        selection_add=[('chronopost', 'Chronopost')])
+        selection_add=[('chronopost_fr', 'Chronopost')])
