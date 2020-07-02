@@ -13,7 +13,16 @@
         "delivery_roulier_option",
         "intrastat_base",  # for customs declaration
     ],
-    "data": ["data/delivery.xml", "views/stock_picking.xml",],
+    "data": [
+        "data/delivery.xml",
+        "views/stock_picking.xml"
+    ],
+    'demo': [
+        'demo/res.partner.csv',
+        'demo/company.xml',
+        'demo/stock.picking.csv',
+        'demo/stock.move.csv'
+    ],
     "installable": True,
     "license": "AGPL-3",
 }

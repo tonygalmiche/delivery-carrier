@@ -148,7 +148,7 @@ class StockQuantPackage(models.Model):
             "Incident\n-----------\n%s\n"
             "Données transmises:\n"
             "-----------------------------\n%s\n\nWS: %s"
-        ) % ("\n".join(parts), request.decode("utf-8"), LAPOSTE_WS)
+        ) % ("\n".join(parts), request.decode("utf-8"), '') # LAPOSTE_WS)
         return ret_mess
 
     def _laposte_fr_get_tracking_link(self):
